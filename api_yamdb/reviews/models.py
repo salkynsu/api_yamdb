@@ -10,7 +10,7 @@ class User(AbstractUser):
     ROLE_CHOICE = ((USER, "User"), (MODERATOR, "Moderator"), (ADMIN, "Admin"))
 
     bio = models.TextField(blank=True)
-    role = models.CharField(choices=ROLE_CHOICE, default=1, max_length=50)
+    role = models.PositiveSmallIntegerField(choices=ROLE_CHOICE, default=1)
 
 
 class Genre(models.Model):
