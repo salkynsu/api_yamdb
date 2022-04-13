@@ -10,7 +10,7 @@ class User(AbstractUser):
     ROLE_CHOICE = ((USER, "User"), (MODERATOR, "Moderator"), (ADMIN, "Admin"))
 
     bio = models.TextField(blank=True)
-    role = models.CharField(choices=ROLE_CHOICE, default=1)
+    role = models.CharField(choices=ROLE_CHOICE, default=1, max_length=50)
 
 
 class Genre(models.Model):
@@ -33,7 +33,7 @@ class Title(models.Model):
     name = models.CharField(max_length=200)
     year = models.PositiveSmallIntegerField()
     category = models.ForeignKey(
-        Category, on_delete=models.SET_NULL, related_name="title"
+        Category, on_delete=models.DO_NOTHING, related_name="title"
     )
     genre = models.ManyToManyField(Genre)
     description = models.TextField(blank=True)
