@@ -3,14 +3,14 @@ from django.db import models
 
 
 class User(AbstractUser):
-    USER = 1
-    MODERATOR = 2
-    ADMIN = 3
-
-    ROLE_CHOICE = ((USER, "User"), (MODERATOR, "Moderator"), (ADMIN, "Admin"))
+    ROLE_CHOICE = (
+        ("USER", "User"),
+        ("MODERATOR", "Moderator"),
+        ("ADMIN", "Admin"),
+    )
 
     bio = models.TextField(blank=True)
-    role = models.PositiveSmallIntegerField(choices=ROLE_CHOICE, default=1)
+    role = models.CharField(choices=ROLE_CHOICE, default="User", max_length=50)
 
 
 class Genre(models.Model):
