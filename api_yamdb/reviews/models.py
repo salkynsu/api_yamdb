@@ -3,7 +3,6 @@ from django.db import models
 
 
 class User(AbstractUser):
-
     ROLE_CHOICE = (
         ("User", "User"),
         ("Moderator", "Moderator"),
