@@ -1,8 +1,6 @@
-from rest_framework import serializers
-
 from django.db.models import Sum
-
-from reviews.models import Genre, Category, Title, Review
+from rest_framework import serializers
+from reviews.models import Category, Genre, Review, Title
 
 
 class GenreSerializer(serializers.ModelSerializer):
@@ -18,10 +16,10 @@ class CategorySerializer(serializers.ModelSerializer):
 
 
 class TitleSerializer(serializers.ModelSerializer):
-    genre = SlugRelatedField(
+    genre = serializers.SlugRelatedField(
         slug_field="slug", many=True, queryset=Genre.objects.all()
     )
-    category = SlugRelatedField(
+    category = serializers.SlugRelatedField(
         slug_field="slug", many=False, queryset=Category.objects.all()
     )
     rating = serializers.SerializerMethodField()

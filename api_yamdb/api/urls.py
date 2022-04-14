@@ -1,7 +1,7 @@
 from django.urls import include, path
 from rest_framework.routers import SimpleRouter
 
-from .views import GenreViewSet, CategoryViewSet, TitleViewSet
+from .views import CategoryViewSet, GenreViewSet, TitleViewSet
 
 app_name = 'api'
 

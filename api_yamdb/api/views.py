@@ -1,10 +1,8 @@
-from rest_framework import viewsets, filters
 from django_filters.rest_framework import DjangoFilterBackend
+from rest_framework import filters, viewsets
+from reviews.models import Category, Genre, Review, Title
 
-
-from reviews.models import Genre, Category, Title, Review
-
-from .serializers import GenreSerializer, CategorySerializer, TitleSerializer
+from .serializers import CategorySerializer, GenreSerializer, TitleSerializer
 
 
 class GenreViewSet(viewsets.ModelViewSet):
