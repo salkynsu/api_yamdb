@@ -52,7 +52,7 @@ class Review(models.Model):
         User, on_delete=models.CASCADE, related_name="review"
     )
     score = models.PositiveSmallIntegerField()
-    pub_date = models.DateField(auto_now_add=True)
+    pub_date = models.DateTimeField(auto_now_add=True)
 
 
 class Comment(models.Model):
@@ -63,4 +63,4 @@ class Comment(models.Model):
     author = models.ForeignKey(
         User, on_delete=models.CASCADE, related_name="comment"
     )
-    pub_date = models.DateField(auto_now_add=True)
+    pub_date = models.DateTimeField(auto_now_add=True)
