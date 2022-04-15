@@ -4,13 +4,18 @@ from django.db import models
 
 class User(AbstractUser):
     ROLE_CHOICE = (
-        ("USER", "User"),
-        ("MODERATOR", "Moderator"),
-        ("ADMIN", "Admin"),
+        ("User", "User"),
+        ("Moderator", "Moderator"),
+        ("Admin", "Admin"),
     )
 
+    email = models.EmailField(unique=True)
     bio = models.TextField(blank=True)
-    role = models.CharField(choices=ROLE_CHOICE, default="User", max_length=50)
+    role = models.CharField(
+        choices=ROLE_CHOICE,
+        default="User",
+        max_length=50,
+    )
 
 
 class Genre(models.Model):
