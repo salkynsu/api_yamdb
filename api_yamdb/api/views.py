@@ -3,6 +3,7 @@ from rest_framework import filters, viewsets
 from rest_framework.mixins import CreateModelMixin, ListModelMixin
 from rest_framework.permissions import AllowAny
 
+
 from reviews.models import Category, Genre, Title, User
 
 from .serializers import (
@@ -13,6 +14,7 @@ from .serializers import (
 )
 
 
+
 class NewUserViewSet(
     CreateModelMixin, ListModelMixin, viewsets.GenericViewSet
 ):
@@ -20,8 +22,11 @@ class NewUserViewSet(
     serializer_class = NewUserSerializer
     permission_classes = [AllowAny]
 
+from .permissions import AdminOrReadOnly
+
 
 class GenreViewSet(viewsets.ModelViewSet):
+    permission_classes = [AdminOrReadOnly,]
     queryset = Genre.objects.all()
     serializer_class = GenreSerializer
     filter_backends = (filters.SearchFilter,)
@@ -29,6 +34,7 @@ class GenreViewSet(viewsets.ModelViewSet):
 
 
 class CategoryViewSet(viewsets.ModelViewSet):
+    permission_classes = [AdminOrReadOnly,]
     queryset = Category.objects.all()
     serializer_class = CategorySerializer
     filter_backends = (filters.SearchFilter,)
@@ -36,6 +42,7 @@ class CategoryViewSet(viewsets.ModelViewSet):
 
 
 class TitleViewSet(viewsets.ModelViewSet):
+    permission_classes = [AdminOrReadOnly,]
     queryset = Title.objects.all()
     serializer_class = TitleSerializer
     filter_backends = (DjangoFilterBackend,)

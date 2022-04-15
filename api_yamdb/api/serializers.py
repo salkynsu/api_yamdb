@@ -29,13 +29,13 @@ class NewUserSerializer(serializers.ModelSerializer):
 class GenreSerializer(serializers.ModelSerializer):
     class Meta:
         model = Genre
-        fields = ("name",)
+        fields = ("name", "slug")
 
 
 class CategorySerializer(serializers.ModelSerializer):
     class Meta:
         model = Category
-        fields = ("name",)
+        fields = ("name", "slug")
 
 
 class TitleSerializer(serializers.ModelSerializer):
