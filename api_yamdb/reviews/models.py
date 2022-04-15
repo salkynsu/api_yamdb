@@ -14,6 +14,9 @@ class User(AbstractUser):
 
 
 class Genre(models.Model):
+    class Meta:
+        ordering = ['-id']
+
     name = models.CharField(max_length=200)
     slug = models.SlugField(unique=True)
 
@@ -22,6 +25,9 @@ class Genre(models.Model):
 
 
 class Category(models.Model):
+    class Meta:
+        ordering = ['-id']
+
     name = models.CharField(max_length=200)
     slug = models.SlugField(unique=True)
 
@@ -30,6 +36,9 @@ class Category(models.Model):
 
 
 class Title(models.Model):
+    class Meta:
+        ordering = ['-id']
+
     name = models.CharField(max_length=200)
     year = models.PositiveSmallIntegerField()
     category = models.ForeignKey(
