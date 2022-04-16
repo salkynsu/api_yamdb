@@ -12,6 +12,7 @@ from .serializers import (
     GenreSerializer,
     TitleSerializer,
     NewUserSerializer,
+    MyTokenObtainPairSerializer,
 )
 
 
@@ -23,12 +24,8 @@ class NewUserViewSet(
     permission_classes = [AllowAny]
 
 
-class NewUserViewSet(
-    CreateModelMixin, ListModelMixin, viewsets.GenericViewSet
-):
-    queryset = User.objects.all()
-    serializer_class = NewUserSerializer
-    permission_classes = [AllowAny]
+class MyTokenObtainPairView(TokenObtainPairView):
+    serializer_class = MyTokenObtainPairSerializer
 
 
 class GenreViewSet(viewsets.ModelViewSet):
