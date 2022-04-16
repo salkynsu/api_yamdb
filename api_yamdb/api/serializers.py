@@ -2,7 +2,28 @@ from rest_framework import serializers
 
 from django.db.models import Sum
 
-from reviews.models import Genre, Category, Title, Review
+from reviews.models import Genre, Category, Title, Review, User
+
+
+class NewUserSerializer(serializers.ModelSerializer):
+    email = serializers.CharField(
+        write_only=True,
+        validators=[
+            UniqueValidator(
+                queryset=User.objects.all(),
+                message="A user with that email already exists.",
+            )
+        ],
+    )
+
+    class Meta:
+        model = User
+        fields = ("username", "email")
+
+    def create(self, validated_data):
+        user = super(NewUserSerializer, self).create(validated_data)
+        user.save()
+        return user
 
 
 class GenreSerializer(serializers.ModelSerializer):
@@ -40,5 +61,5 @@ class TitleSerializer(serializers.ModelSerializer):
 
     def get_rating(self, obj):
         reviews = Review.objects.filter(title=obj)
-        rating = reviews.aggregate(Sum('score')) / reviews.count()
+        rating = reviews.aggregate(Sum('score'))["score"] / reviews.count()
         return rating
