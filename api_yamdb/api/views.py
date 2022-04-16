@@ -14,7 +14,6 @@ from .serializers import (
 )
 
 
-
 class NewUserViewSet(
     CreateModelMixin, ListModelMixin, viewsets.GenericViewSet
 ):
