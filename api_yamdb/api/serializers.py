@@ -1,8 +1,8 @@
+from django.db.models import Sum
+from rest_framework.validators import UniqueValidator
 from rest_framework import serializers
 
-from django.db.models import Sum
-
-from reviews.models import Genre, Category, Title, Review, User
+from reviews.models import Category, Genre, Review, Title, User
 
 
 class NewUserSerializer(serializers.ModelSerializer):
