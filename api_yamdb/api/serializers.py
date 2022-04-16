@@ -1,29 +1,35 @@
 from django.db.models import Sum
-from rest_framework.validators import UniqueValidator
 from rest_framework import serializers
+from rest_framework_simplejwt.serializers import (
+    TokenObtainSerializer,
+    TokenObtainPairSerializer,
+    TokenObtainSlidingSerializer,
+)
+
 
 from reviews.models import Category, Genre, Review, Title, User
 
 
+class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
+    # class Meta:
+    #    model = User
+    #    fields = ("email", "token")
+
+    @classmethod
+    def get_token(cls, user):
+        token = super().get_token(user)
+        token["email"] = user.email
+        token["confirmation code"] = user.token
+
+        return token
+
+
 class NewUserSerializer(serializers.ModelSerializer):
-    email = serializers.CharField(
-        write_only=True,
-        validators=[
-            UniqueValidator(
-                queryset=User.objects.all(),
-                message="A user with that email already exists.",
-            )
-        ],
-    )
+    """Сериализатор регистрации нового пользоователя."""
 
     class Meta:
         model = User
         fields = ("username", "email")
-
-    def create(self, validated_data):
-        user = super(NewUserSerializer, self).create(validated_data)
-        user.save()
-        return user
 
 
 class GenreSerializer(serializers.ModelSerializer):

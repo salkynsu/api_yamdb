@@ -1,8 +1,13 @@
+import binascii
+import os
+
 from django.contrib.auth.models import AbstractUser
 from django.db import models
 
 
 class User(AbstractUser):
+    """Модель пользователя."""
+
     ROLE_CHOICE = (
         ("User", "User"),
         ("Moderator", "Moderator"),
@@ -16,11 +21,21 @@ class User(AbstractUser):
         default="User",
         max_length=50,
     )
+    token = models.CharField(max_length=40)
+
+    def save(self, *args, **kwargs):
+        if not self.token:
+            self.token = self.generate_key()
+        return super().save(*args, **kwargs)
+
+    @classmethod
+    def generate_key(cls):
+        return binascii.hexlify(os.urandom(20)).decode()
 
 
 class Genre(models.Model):
     class Meta:
-        ordering = ['-id']
+        ordering = ["-id"]
 
     name = models.CharField(max_length=200)
     slug = models.SlugField(unique=True)
@@ -31,7 +46,7 @@ class Genre(models.Model):
 
 class Category(models.Model):
     class Meta:
-        ordering = ['-id']
+        ordering = ["-id"]
 
     name = models.CharField(max_length=200)
     slug = models.SlugField(unique=True)
@@ -42,7 +57,7 @@ class Category(models.Model):
 
 class Title(models.Model):
     class Meta:
-        ordering = ['-id']
+        ordering = ["-id"]
 
     name = models.CharField(max_length=200)
     year = models.PositiveSmallIntegerField()
