@@ -5,6 +5,8 @@ from rest_framework.permissions import AllowAny
 
 from reviews.models import Category, Genre, Title, User
 
+from .permissions import AdminOrReadOnly
+
 from .serializers import (
     CategorySerializer,
     GenreSerializer,
@@ -12,7 +14,14 @@ from .serializers import (
     NewUserSerializer,
 )
 
-from .permissions import AdminOrReadOnly
+
+class NewUserViewSet(
+    CreateModelMixin, ListModelMixin, viewsets.GenericViewSet
+):
+    queryset = User.objects.all()
+    serializer_class = NewUserSerializer
+    permission_classes = [AllowAny]
+
 
 class NewUserViewSet(
     CreateModelMixin, ListModelMixin, viewsets.GenericViewSet
