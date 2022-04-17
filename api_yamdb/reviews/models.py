@@ -7,6 +7,8 @@ from django.db import models
 
 class User(AbstractUser):
     """Модель пользователя."""
+    class Meta:
+        ordering = ["-id"]
 
     ROLE_CHOICE = (
         ("user", "user"),
@@ -55,6 +57,7 @@ class Category(models.Model):
         return self.name
 
 
+
 class Title(models.Model):
     class Meta:
         ordering = ["-id"]
@@ -64,8 +67,13 @@ class Title(models.Model):
     category = models.ForeignKey(
         Category, on_delete=models.DO_NOTHING, related_name="title"
     )
-    genre = models.ManyToManyField(Genre)
+    genre = models.ManyToManyField(Genre,through="GenreTitle")
     description = models.TextField(blank=True)
+
+
+class GenreTitle(models.Model):
+    title = models.ForeignKey(Title, on_delete=models.CASCADE)
+    genre = models.ForeignKey(Genre, on_delete=models.CASCADE)
 
 
 class Review(models.Model):
