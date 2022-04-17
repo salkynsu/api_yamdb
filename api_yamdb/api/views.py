@@ -9,8 +9,8 @@ from django.core.mail import send_mail
 from rest_framework import status
 
 from reviews.models import Category, Genre, Title, User
-
 from .permissions import AdminOrReadOnly
+
 
 from .serializers import (
     CategorySerializer,
@@ -18,7 +18,7 @@ from .serializers import (
     TitleSerializer,
     NewUserSerializer,
     MyTokenObtainPairSerializer,
-    ListUsersSeriaziler,
+    ListUsersSerializer,
 )
 
 
@@ -48,10 +48,6 @@ class NewUserViewSet(CreateModelMixin, viewsets.GenericViewSet):
     serializer_class = NewUserSerializer
     permission_classes = [AllowAny]
 
-
-class MyTokenObtainPairView(TokenObtainPairView):
-    serializer_class = MyTokenObtainPairSerializer
-
     def perform_create(self, serializer):
         super().perform_create(serializer)
         send_mail(
@@ -67,7 +63,9 @@ class MyTokenObtainPairView(TokenObtainPairView):
 
 
 class GenreViewSet(viewsets.ModelViewSet):
-    permission_classes = [AdminOrReadOnly,]
+    permission_classes = [
+        AdminOrReadOnly,
+    ]
     queryset = Genre.objects.all()
     serializer_class = GenreSerializer
     filter_backends = (filters.SearchFilter,)
@@ -75,7 +73,9 @@ class GenreViewSet(viewsets.ModelViewSet):
 
 
 class CategoryViewSet(viewsets.ModelViewSet):
-    permission_classes = [AdminOrReadOnly,]
+    permission_classes = [
+        AdminOrReadOnly,
+    ]
     queryset = Category.objects.all()
     serializer_class = CategorySerializer
     filter_backends = (filters.SearchFilter,)
@@ -83,16 +83,18 @@ class CategoryViewSet(viewsets.ModelViewSet):
 
 
 class TitleViewSet(viewsets.ModelViewSet):
-    permission_classes = [AdminOrReadOnly,]
+    permission_classes = [
+        AdminOrReadOnly,
+    ]
     queryset = Title.objects.all()
     serializer_class = TitleSerializer
     filter_backends = (DjangoFilterBackend,)
     filterset_fields = ("category", "genre", "name", "year")
 
 
-class ListUsersViesSet(viewsets.ModelViewSet):
+class ListUsersViewSet(viewsets.ModelViewSet):
     queryset = User.objects.all()
-    serializer_class = ListUsersSeriaziler
+    serializer_class = ListUsersSerializer
     permission_classes = [
         AdminOrReadOnly,
     ]

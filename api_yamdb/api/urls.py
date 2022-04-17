@@ -12,6 +12,7 @@ from .views import (
     TitleViewSet,
     NewUserViewSet,
     MyTokenObtainPairView,
+    ListUsersViewSet,
 )
 
 app_name = "api"
@@ -21,6 +22,7 @@ router.register("categories", CategoryViewSet)
 router.register("genres", GenreViewSet)
 router.register("titles", TitleViewSet)
 router.register("auth/signup", NewUserViewSet)
+router.register("users", ListUsersViewSet)
 
 urlpatterns = [
     path("v1/", include(router.urls)),

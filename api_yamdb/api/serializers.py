@@ -5,7 +5,7 @@ from rest_framework.validators import UniqueTogetherValidator
 from reviews.models import Category, Genre, Review, Title, User
 
 
-class ListUsersSeriaziler(serializers.ModelSerializer):
+class ListUsersSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = "__all__"
