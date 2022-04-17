@@ -1,35 +1,43 @@
 from django.db.models import Sum
-from rest_framework import serializers
-from rest_framework_simplejwt.serializers import (
-    TokenObtainSerializer,
-    TokenObtainPairSerializer,
-    TokenObtainSlidingSerializer,
-)
-
+from rest_framework import serializers, relations
+from rest_framework.validators import UniqueTogetherValidator
 
 from reviews.models import Category, Genre, Review, Title, User
 
 
-class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
-    # class Meta:
-    #    model = User
-    #    fields = ("email", "token")
+class ListUsersSeriaziler(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = "__all__"
 
-    @classmethod
-    def get_token(cls, user):
-        token = super().get_token(user)
-        token["email"] = user.email
-        token["confirmation code"] = user.token
 
-        return token
+class MyTokenObtainPairSerializer(serializers.ModelSerializer):
+    username = relations.SlugRelatedField(
+        read_only=True, slug_field="username"
+    )
+
+    class Meta:
+        model = User
+        fields = ("username", "token")
+
+        # validators = [
+        #    UniqueTogetherValidator(
+        #        queryset=User.objects.all(), fields=["username", "token"]
+        #    )
+        # ]
 
 
 class NewUserSerializer(serializers.ModelSerializer):
-    """Сериализатор регистрации нового пользоователя."""
+    """Сериализатор регистрации нового пользователя."""
 
     class Meta:
         model = User
         fields = ("username", "email")
+
+    def validate(self, data):
+        if data["username"] == "me":
+            raise serializers.ValidationError("Данное имя недопустимо!")
+        return data
 
 
 class GenreSerializer(serializers.ModelSerializer):
