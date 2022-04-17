@@ -9,6 +9,7 @@ from rest_framework.permissions import (
     AllowAny,
     IsAdminUser,
     IsAuthenticatedOrReadOnly,
+    IsAuthenticated,
 )
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework.response import Response
@@ -33,17 +34,16 @@ class MyTokenObtainPairView(views.APIView):
 
     def post(self, serializer):
         serializer = MyTokenObtainPairSerializer(data=serializer.data)
-        if serializer.is_valid(raise_exception=True):
-            token = serializer.validated_data["token"]
-            user = get_object_or_404(User, token=token)
+        serializer.is_valid(raise_exception=True)
+        token = serializer.validated_data["token"]
+        user = get_object_or_404(User, token=token)
+        if user.exists():
             refresh = RefreshToken.for_user(user)
             result = {
                 "token": str(refresh.access_token),
             }
             return Response(status=status.HTTP_200_OK, data=result)
-        return Response(
-            status=status.HTTP_400_BAD_REQUEST, data=serializer.errors
-        )
+        return Response(status=status.HTTP_404_, data=serializer.errors)
 
 
 class NewUserViewSet(CreateModelMixin, viewsets.GenericViewSet):
@@ -54,8 +54,11 @@ class NewUserViewSet(CreateModelMixin, viewsets.GenericViewSet):
     serializer_class = NewUserSerializer
     permission_classes = [AllowAny]
 
-    def perform_create(self, serializer):
-        super().perform_create(serializer)
+    def create(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        self.perform_create(serializer)
+        headers = self.get_success_headers(serializer.data)
         send_mail(
             "Confirmation code here",
             "Here is the confirmation code: "
@@ -65,6 +68,9 @@ class NewUserViewSet(CreateModelMixin, viewsets.GenericViewSet):
             "admin@admin.com",
             [serializer.data["email"]],
             fail_silently=False,
+        )
+        return Response(
+            serializer.data, status=status.HTTP_200_OK, headers=headers
         )
 
 
@@ -116,6 +122,7 @@ class ListUsersViewSet(viewsets.ModelViewSet):
     queryset = User.objects.all()
     serializer_class = ListUsersSerializer
     permission_classes = [
+        IsAuthenticated,
         AdminOnly,
     ]
     filter_backends = (filters.SearchFilter,)
