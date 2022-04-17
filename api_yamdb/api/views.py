@@ -1,13 +1,17 @@
+import django_filters
+
 from django.shortcuts import get_object_or_404
 from django.core.mail import send_mail
 from django_filters.rest_framework import DjangoFilterBackend
-import django_filters
-from rest_framework import filters, viewsets, views
+from rest_framework import filters, viewsets, views, status
 from rest_framework.mixins import CreateModelMixin
-from rest_framework.permissions import AllowAny
+from rest_framework.permissions import (
+    AllowAny,
+    IsAdminUser,
+    IsAuthenticatedOrReadOnly,
+)
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework.response import Response
-from rest_framework import status
 
 from reviews.models import Category, Genre, Title, User
 from .permissions import AdminOrReadOnly, AdminOnly
@@ -90,7 +94,7 @@ class TitleFilter(django_filters.FilterSet):
 
     class Meta:
         model = Title
-        fields = ['category', 'genre', 'name', 'year']
+        fields = ["category", "genre", "name", "year"]
 
 
 class TitleViewSet(viewsets.ModelViewSet):
@@ -103,7 +107,7 @@ class TitleViewSet(viewsets.ModelViewSet):
     filterset_class = TitleFilter
 
     def get_serializer_class(self):
-        if self.action in ['list', 'retrieve']:
+        if self.action in ["list", "retrieve"]:
             return TitleSerializer
         return TitlePostSerializer
 

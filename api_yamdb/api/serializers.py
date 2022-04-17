@@ -79,8 +79,9 @@ class TitleSerializer(serializers.ModelSerializer):
 
     def get_rating(self, obj):
         reviews = Review.objects.filter(title=obj)
-        rating = reviews.aggregate(Avg('score')).get('score__avg')
+        rating = reviews.aggregate(Avg("score")).get("score__avg")
         return rating
+
 
 class TitlePostSerializer(serializers.ModelSerializer):
     genre = serializers.SlugRelatedField(
@@ -89,6 +90,7 @@ class TitlePostSerializer(serializers.ModelSerializer):
     category = serializers.SlugRelatedField(
         slug_field="slug", many=False, queryset=Category.objects.all()
     )
+
     class Meta:
         model = Title
         fields = (
