@@ -11,16 +11,16 @@ class User(AbstractUser):
         ordering = ["-id"]
 
     ROLE_CHOICE = (
-        ("User", "User"),
-        ("Moderator", "Moderator"),
-        ("Admin", "Admin"),
+        ("user", "user"),
+        ("moderator", "moderator"),
+        ("admin", "admin"),
     )
 
     email = models.EmailField(unique=True)
     bio = models.TextField(blank=True)
     role = models.CharField(
         choices=ROLE_CHOICE,
-        default="User",
+        default="user",
         max_length=50,
     )
     token = models.CharField(max_length=40)
