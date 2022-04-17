@@ -1,5 +1,6 @@
 from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
+import django_filters
 from rest_framework import filters, viewsets, views
 from rest_framework.mixins import CreateModelMixin
 from rest_framework.permissions import AllowAny
@@ -16,6 +17,7 @@ from .serializers import (
     CategorySerializer,
     GenreSerializer,
     TitleSerializer,
+    TitlePostSerializer,
     NewUserSerializer,
     MyTokenObtainPairSerializer,
     ListUsersSerializer,
@@ -82,6 +84,15 @@ class CategoryViewSet(viewsets.ModelViewSet):
     search_fields = ("name",)
 
 
+class TitleFilter(django_filters.FilterSet):
+    category = django_filters.CharFilter(field_name="slug")
+    genre = django_filters.CharFilter(field_name="slug")
+
+    class Meta:
+        model = Title
+        fields = ['category', 'genre', 'name', 'year']
+
+
 class TitleViewSet(viewsets.ModelViewSet):
     permission_classes = [
         AdminOrReadOnly,
@@ -89,7 +100,12 @@ class TitleViewSet(viewsets.ModelViewSet):
     queryset = Title.objects.all()
     serializer_class = TitleSerializer
     filter_backends = (DjangoFilterBackend,)
-    filterset_fields = ("category", "genre", "name", "year")
+    filterset_class = TitleFilter
+
+    def get_serializer_class(self):
+        if self.action in ['list', 'retrieve']:
+            return TitleSerializer
+        return TitlePostSerializer
 
 
 class ListUsersViewSet(viewsets.ModelViewSet):
