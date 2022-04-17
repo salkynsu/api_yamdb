@@ -7,6 +7,8 @@ from django.db import models
 
 class User(AbstractUser):
     """Модель пользователя."""
+    class Meta:
+        ordering = ["-id"]
 
     ROLE_CHOICE = (
         ("User", "User"),
