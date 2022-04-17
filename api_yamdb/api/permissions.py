@@ -12,7 +12,4 @@ class AdminOrReadOnly(permissions.BasePermission):
 
 class AdminOnly(permissions.BasePermission):
     def has_permission(self, request, view):
-        return bool(
-            request.method in permissions.SAFE_METHODS
-            or request.user.role == "admin"
-        )
+        return bool(request.user == "admin" and request.user.is_staff)
