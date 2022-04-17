@@ -86,6 +86,9 @@ class Review(models.Model):
     score = models.PositiveSmallIntegerField()
     pub_date = models.DateTimeField(auto_now_add=True)
 
+    class Meta:
+        ordering = ["-id"]
+
 
 class Comment(models.Model):
     text = models.TextField()
