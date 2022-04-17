@@ -1,6 +1,7 @@
 from django.db.models import Avg
 from rest_framework import serializers, relations
-from rest_framework.validators import UniqueTogetherValidator
+
+# from rest_framework.validators import UniqueTogetherValidator
 
 from reviews.models import Category, Genre, Review, Title, User
 
@@ -8,7 +9,14 @@ from reviews.models import Category, Genre, Review, Title, User
 class ListUsersSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = "__all__"
+        fields = (
+            "username",
+            "email",
+            "first_name",
+            "last_name",
+            "bio",
+            "role",
+        )
 
 
 class MyTokenObtainPairSerializer(serializers.ModelSerializer):

@@ -1,11 +1,6 @@
 from django.urls import include, path
 from rest_framework.routers import SimpleRouter
 
-from rest_framework_simplejwt.views import (
-    TokenRefreshView,
-    # TokenVerifyView,
-)
-
 from .views import (
     CategoryViewSet,
     GenreViewSet,
@@ -31,8 +26,4 @@ urlpatterns = [
         MyTokenObtainPairView.as_view(),
         name="token_obtain_pair",
     ),
-    # path(
-    #    "v1/token/refresh/", TokenRefreshView.as_view(), name="token_refresh"
-    # ),
-    # path("v1/token/verify/", TokenVerifyView.as_view(), name="token_verify"),
 ]
