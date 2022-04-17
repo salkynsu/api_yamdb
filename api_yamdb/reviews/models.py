@@ -57,7 +57,6 @@ class Category(models.Model):
         return self.name
 
 
-
 class Title(models.Model):
     class Meta:
         ordering = ["-id"]
