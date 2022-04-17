@@ -120,3 +120,4 @@ class ListUsersViewSet(viewsets.ModelViewSet):
     ]
     filter_backends = (filters.SearchFilter,)
     search_fields = ("username",)
+    lookup_field = "username"
