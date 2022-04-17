@@ -1,29 +1,51 @@
 from django.db.models import Sum
 from rest_framework.validators import UniqueValidator
-from rest_framework import serializers
+from rest_framework import serializers, relations
 from rest_framework.relations import PrimaryKeyRelatedField, SlugRelatedField
 from reviews.models import Category, Comment, Genre, Review, Title, User
+from django.db.models import Avg
+
+
+class ListUsersSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = (
+            "username",
+            "email",
+            "first_name",
+            "last_name",
+            "bio",
+            "role",
+        )
+
+
+class MyTokenObtainPairSerializer(serializers.ModelSerializer):
+    username = relations.SlugRelatedField(
+        read_only=True, slug_field="username"
+    )
+
+    class Meta:
+        model = User
+        fields = ("username", "token")
+
+        # validators = [
+        #    UniqueTogetherValidator(
+        #        queryset=User.objects.all(), fields=["username", "token"]
+        #    )
+        # ]
 
 
 class NewUserSerializer(serializers.ModelSerializer):
-    email = serializers.CharField(
-        write_only=True,
-        validators=[
-            UniqueValidator(
-                queryset=User.objects.all(),
-                message="A user with that email already exists.",
-            )
-        ],
-    )
+    """Сериализатор регистрации нового пользователя."""
 
     class Meta:
         model = User
         fields = ("username", "email")
 
-    def create(self, validated_data):
-        user = super(NewUserSerializer, self).create(validated_data)
-        user.save()
-        return user
+    def validate(self, data):
+        if data["username"] == "me":
+            raise serializers.ValidationError("Данное имя недопустимо!")
+        return data
 
 
 class GenreSerializer(serializers.ModelSerializer):
@@ -39,12 +61,8 @@ class CategorySerializer(serializers.ModelSerializer):
 
 
 class TitleSerializer(serializers.ModelSerializer):
-    genre = serializers.SlugRelatedField(
-        slug_field="slug", many=True, queryset=Genre.objects.all()
-    )
-    category = serializers.SlugRelatedField(
-        slug_field="slug", many=False, queryset=Category.objects.all()
-    )
+    genre = GenreSerializer(required=True, many=True)
+    category = CategorySerializer(required=True)
     rating = serializers.SerializerMethodField()
 
     class Meta:
@@ -61,7 +79,7 @@ class TitleSerializer(serializers.ModelSerializer):
 
     def get_rating(self, obj):
         reviews = Review.objects.filter(title=obj)
-        rating = reviews.aggregate(Sum("score")) / reviews.count()
+        rating = reviews.aggregate(Avg("score")).get("score__avg")
         return rating
 
 
@@ -80,3 +98,23 @@ class CommentSerializer(serializers.ModelSerializer):
     class Meta:
         model = Comment
         fields = ("id", "text", "review", "author", "pub_date")
+
+
+class TitlePostSerializer(serializers.ModelSerializer):
+    genre = serializers.SlugRelatedField(
+        slug_field="slug", many=True, queryset=Genre.objects.all()
+    )
+    category = serializers.SlugRelatedField(
+        slug_field="slug", many=False, queryset=Category.objects.all()
+    )
+
+    class Meta:
+        model = Title
+        fields = (
+            "id",
+            "name",
+            "year",
+            "description",
+            "category",
+            "genre",
+        )
