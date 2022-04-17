@@ -3,8 +3,14 @@ from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import filters, viewsets
 from reviews.models import Category, Genre, Review, Title, Comment, User
 
-from .serializers import (CategorySerializer, CommentSerializer,
-                          GenreSerializer, ReviewSerializer, TitleSerializer, NewUserSerializer)
+from .serializers import (
+    CategorySerializer,
+    CommentSerializer,
+    GenreSerializer,
+    ReviewSerializer,
+    TitleSerializer,
+    NewUserSerializer,
+)
 from rest_framework.mixins import CreateModelMixin, ListModelMixin
 from rest_framework.permissions import AllowAny
 from .permissions import AdminOrReadOnly
@@ -19,7 +25,9 @@ class NewUserViewSet(
 
 
 class GenreViewSet(viewsets.ModelViewSet):
-    permission_classes = [AdminOrReadOnly, ]
+    permission_classes = [
+        AdminOrReadOnly,
+    ]
     queryset = Genre.objects.all()
     serializer_class = GenreSerializer
     filter_backends = (filters.SearchFilter,)
@@ -27,7 +35,9 @@ class GenreViewSet(viewsets.ModelViewSet):
 
 
 class CategoryViewSet(viewsets.ModelViewSet):
-    permission_classes = [AdminOrReadOnly, ]
+    permission_classes = [
+        AdminOrReadOnly,
+    ]
     queryset = Category.objects.all()
     serializer_class = CategorySerializer
     filter_backends = (filters.SearchFilter,)
@@ -35,7 +45,9 @@ class CategoryViewSet(viewsets.ModelViewSet):
 
 
 class TitleViewSet(viewsets.ModelViewSet):
-    permission_classes = [AdminOrReadOnly, ]
+    permission_classes = [
+        AdminOrReadOnly,
+    ]
     queryset = Title.objects.all()
     serializer_class = TitleSerializer
     filter_backends = (DjangoFilterBackend,)

@@ -12,7 +12,7 @@ from .views import (
     GenreViewSet,
     ReviewViewSet,
     TitleViewSet,
-    NewUserViewSet
+    NewUserViewSet,
 )
 
 app_name = "api"
@@ -30,4 +30,5 @@ router.register("auth/signup/", NewUserViewSet)
 
 urlpatterns = [
     path("v1/", include(router.urls)),
-    path("v1/token/", TokenObtainPairView.as_view(), name="token_obtain_pair"), ]
+    path("v1/token/", TokenObtainPairView.as_view(), name="token_obtain_pair"),
+]
