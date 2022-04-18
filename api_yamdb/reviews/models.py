@@ -7,6 +7,7 @@ from django.db import models
 
 class User(AbstractUser):
     """Модель пользователя."""
+
     class Meta:
         ordering = ["-id"]
 
@@ -57,7 +58,6 @@ class Category(models.Model):
         return self.name
 
 
-
 class Title(models.Model):
     class Meta:
         ordering = ["-id"]
@@ -67,7 +67,7 @@ class Title(models.Model):
     category = models.ForeignKey(
         Category, on_delete=models.DO_NOTHING, related_name="title"
     )
-    genre = models.ManyToManyField(Genre,through="GenreTitle")
+    genre = models.ManyToManyField(Genre, through="GenreTitle")
     description = models.TextField(blank=True)
 
 
