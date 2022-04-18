@@ -1,14 +1,21 @@
 import django_filters
+
 from django.core.mail import send_mail
 from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
-
-from rest_framework import filters, status, views, viewsets
-from rest_framework.mixins import (CreateModelMixin, DestroyModelMixin,
-                                   ListModelMixin)
-from rest_framework.permissions import (AllowAny, IsAdminUser, IsAuthenticated,
-                                        IsAuthenticatedOrReadOnly)
-
+from rest_framework import filters, status, views, viewsets, generics
+from rest_framework.mixins import (
+    CreateModelMixin,
+    DestroyModelMixin,
+    ListModelMixin,
+    RetrieveModelMixin,
+)
+from rest_framework.permissions import (
+    AllowAny,
+    IsAdminUser,
+    IsAuthenticated,
+    IsAuthenticatedOrReadOnly,
+)
 from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import RefreshToken
 from reviews.models import Category, Genre, Title, User
@@ -23,7 +30,7 @@ from .serializers import (
     NewUserSerializer,
     MyTokenObtainPairSerializer,
     ListUsersSerializer,
-    UserMeSerializer,
+    UserDetailSerializer,
 )
 
 
@@ -130,7 +137,9 @@ class CategoryViewSet(
 class TitleFilter(django_filters.FilterSet):
     category = django_filters.CharFilter(field_name="category__slug")
     genre = django_filters.CharFilter(field_name="genre__slug")
-    name = django_filters.CharFilter(field_name="name", lookup_expr='icontains')
+    name = django_filters.CharFilter(
+        field_name="name", lookup_expr="icontains"
+    )
     year = django_filters.NumberFilter(field_name="year")
 
     class Meta:
@@ -162,19 +171,21 @@ class ListUsersViewSet(viewsets.ModelViewSet):
     lookup_field = "username"
 
 
-# class UserMeViewsSet(viewsets.GenericViewSet):
-#    serializer_class = UserMeSerializer
-#    permission_classes = [IsAuthenticated, AdminOnly]
-#    pagination_class = None
-#
-#    def get_queryset(self):
-#        return User.objects.filter(username=self.request.user)
-
-
-class UserMeViewsSet(viewsets.ModelViewSet):
-    serializer_class = UserMeSerializer
-    permission_classes = [IsAuthenticated]
+class UserMeAPIView(generics.RetrieveAPIView):
+    serializer_class = ListUsersSerializer
+    permission_classes = [IsAuthenticated, UserPermissions]
     pagination_class = None
 
-    def get_queryset(self):
-        return User.objects.filter(username=self.request.user)
+    def get_object(self):
+        username = self.request.user
+        return get_object_or_404(User, username=username)
+
+
+class UserMeUpdateAPIview(generics.RetrieveUpdateAPIView):
+    serializer_class = UserDetailSerializer
+    permission_classes = [AdminOnly, UserPermissions]
+    pagination_class = None
+    # lookup_field = "username"
+
+    def patch(self, request, *args, **kwargs):
+        return self.update(request, *args, **kwargs)

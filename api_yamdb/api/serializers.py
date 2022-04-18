@@ -5,7 +5,6 @@ from reviews.models import Category, Genre, Review, Title, User
 from rest_framework.validators import UniqueTogetherValidator
 
 
-
 class ListUsersSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
@@ -16,6 +15,18 @@ class ListUsersSerializer(serializers.ModelSerializer):
             "last_name",
             "bio",
             "role",
+        )
+
+
+class UserDetailSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = (
+            "username",
+            "email",
+            "first_name",
+            "last_name",
+            "bio",
         )
 
 
@@ -105,17 +116,4 @@ class TitlePostSerializer(serializers.ModelSerializer):
             "description",
             "category",
             "genre",
-        )
-
-
-class UserMeSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = User
-        fields = (
-            "username",
-            "email",
-            "first_name",
-            "last_name",
-            "bio",
-            "role",
         )
