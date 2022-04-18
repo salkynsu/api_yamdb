@@ -54,18 +54,24 @@ class MyTokenObtainPairView(views.APIView):
         #    status=status.HTTP_404_NOT_FOUND, data=serializer.errors
         # )
         serializer = MyTokenObtainPairSerializer(data=serializer.data)
-        serializer.is_valid(raise_exception=True)
-        # token = serializer.validated_data["confirmation_code"]
-        # print(token)
-        user = get_object_or_404(User, username=serializer.data["username"])
-        refresh = RefreshToken.for_user(user)
-        result = {
-            "token": str(refresh.access_token),
-        }
-        return Response(status=status.HTTP_200_OK, data=result)
-        # return Response(
-        #    status=status.HTTP_404_NOT_FOUND, data=serializer.errors
-        # )
+        if serializer.is_valid(raise_exception=True):
+            try:
+                user = User.objects.get(username=serializer.data["username"])
+            except User.DoesNotExist:
+                return Response(status=status.HTTP_404_NOT_FOUND)
+            token = serializer.data["confirmation_code"]
+            print(token)
+            print(user.token)
+
+            if serializer.data["confirmation_code"] == user.token:
+                refresh = RefreshToken.for_user(user)
+                result = {
+                    "token": str(refresh.access_token),
+                }
+                return Response(status=status.HTTP_200_OK, data=result)
+            return Response(
+                status=status.HTTP_400_BAD_REQUEST, data=serializer.errors
+            )
 
 
 class NewUserViewSet(CreateModelMixin, viewsets.GenericViewSet):
