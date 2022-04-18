@@ -37,15 +37,81 @@ class MyTokenObtainPairView(views.APIView):
     def post(self, serializer):
         serializer = MyTokenObtainPairSerializer(data=serializer.data)
         serializer.is_valid(raise_exception=True)
-        token = serializer.validated_data["token"]
-        user = get_object_or_404(User, token=token)
-        if user.exists():
-            refresh = RefreshToken.for_user(user)
-            result = {
-                "token": str(refresh.access_token),
-            }
-            return Response(status=status.HTTP_200_OK, data=result)
-        return Response(status=status.HTTP_404_, data=serializer.errors)
+        print(serializer.data)
+        # token = serializer.validated_data["confirmation_code"]
+        # print(token)
+        user = get_object_or_404(
+            User, token=serializer.data["token"]
+        )
+        print(user)
+        refresh = RefreshToken.for_user(user)
+        result = {
+            "token": str(refresh.access_token),
+        }
+        return Response(status=status.HTTP_200_OK, data=result)
+    # def post(self, serializer):
+    #     serializer = MyTokenObtainPairSerializer(data=serializer.data)
+    #     serializer.is_valid(raise_exception=True)
+    #     token = serializer.validated_data["token"]
+    #     # user = get_object_or_404(User, token=token)
+    #     username = serializer.validated_data["token"]
+    #     print(username)
+    #     if User.objects.filter(username=username).exists():
+    #         refresh = RefreshToken.for_user(
+    #             User.objects.filter(username=username)
+    #         )
+    #         result = {
+    #             "token": str(refresh.access_token),
+    #         }
+    #         return Response(status=status.HTTP_200_OK, data=result)
+    #     return Response(
+    #         status=status.HTTP_404_NOT_FOUND, data=serializer.errors
+    #     )
+    # def post(self, serializer):
+    #     serializer = MyTokenObtainPairSerializer(data=serializer.data)
+    #     serializer.is_valid(raise_exception=True)
+    #     # token = serializer.validated_data["token"]
+    #     # user = get_object_or_404(User, token=token)
+    #     print(serializer.data)
+    #     username = serializer.validated_data["username"]
+    #     if User.objects.filter(username=username).exists():
+    #         refresh = RefreshToken.for_user(
+    #             User.objects.filter(username=username)
+    #         )
+    #         result = {
+    #             "token": str(refresh.access_token),
+    #         }
+    #         return Response(status=status.HTTP_200_OK, data=result)
+    #     return Response(
+    #         status=status.HTTP_404_NOT_FOUND, data=serializer.errors
+    #     )
+    # def post(self, serializer):
+    #     serializer = MyTokenObtainPairSerializer(data=serializer.data)
+    #     serializer.is_valid(raise_exception=True)
+    #     # token = serializer.validated_data["token"]
+    #     # user = get_object_or_404(User, token=token)
+    #     username = serializer.data["username"]
+    #     if User.objects.filter(username=username).exists():
+    #         refresh = RefreshToken.for_user(
+    #             User.objects.filter(username=username)
+    #         )
+    #         result = {
+    #             "token": str(refresh.access_token),
+    #         }
+    #         return Response(status=status.HTTP_200_OK, data=result)
+    #     return Response(
+    #         status=status.HTTP_404_NOT_FOUND, data=serializer.errors
+    #     )
+    # def post(self, serializer):
+    #     serializer = MyTokenObtainPairSerializer(data=serializer.data)
+    #     serializer.is_valid(raise_exception=True)
+    #     token = serializer.validated_data["token"]
+    #     user = get_object_or_404(User, token=token)
+    #     refresh = RefreshToken.for_user(user)
+    #     result = {
+    #         "token": str(refresh.access_token),
+    #     }
+    #     return Response(status=status.HTTP_200_OK, data=result)
 
 
 class NewUserViewSet(CreateModelMixin, viewsets.GenericViewSet):
@@ -133,15 +199,18 @@ class ListUsersViewSet(viewsets.ModelViewSet):
 
 
 class ReviewViewSet(viewsets.ModelViewSet):
-    queryset = Review.objects.all()
     serializer_class = ReviewSerializer
 
-    # def get_queryset(self):
-    #     title_id = self.kwargs.get("title_id")
-    #     reviews = Review.objects.filter(
-    #         title=get_object_or_404(Title, pk=title_id)
-    #     )
-    #     return reviews
+    def get_queryset(self):
+        title_id = self.kwargs.get("title_id")
+        reviews = Review.objects.filter(
+            title=get_object_or_404(Title, pk=title_id)
+        )
+        return reviews
+
+    def perform_create(self, serializer):
+        serializer.save(
+            author=self.request.user, title_id=self.kwargs.get("title_id"))
 
 
 class CommentViewSet(viewsets.ModelViewSet):

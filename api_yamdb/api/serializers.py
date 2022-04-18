@@ -2,6 +2,7 @@ from rest_framework import serializers, relations
 from rest_framework.relations import PrimaryKeyRelatedField, SlugRelatedField
 from reviews.models import Category, Comment, Genre, Review, Title, User
 from django.db.models import Avg
+from rest_framework.validators import UniqueTogetherValidator
 
 
 class ListUsersSerializer(serializers.ModelSerializer):
