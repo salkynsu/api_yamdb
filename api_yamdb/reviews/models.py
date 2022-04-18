@@ -8,9 +8,6 @@ from django.db import models
 class User(AbstractUser):
     """Модель пользователя."""
 
-    class Meta:
-        ordering = ["-id"]
-
     ROLE_CHOICE = (
         ("user", "user"),
         ("moderator", "moderator"),
@@ -26,6 +23,9 @@ class User(AbstractUser):
     )
     token = models.CharField(max_length=40)
 
+    class Meta:
+        ordering = ["-id"]
+
     def save(self, *args, **kwargs):
         if not self.token:
             self.token = self.generate_key()
@@ -37,30 +37,33 @@ class User(AbstractUser):
 
 
 class Genre(models.Model):
-    class Meta:
-        ordering = ["-id"]
+    """Модель жанра произведения."""
 
     name = models.CharField(max_length=200)
     slug = models.SlugField(unique=True)
+
+    class Meta:
+        ordering = ["-id"]
 
     def __str__(self):
         return self.name
 
 
 class Category(models.Model):
-    class Meta:
-        ordering = ["-id"]
+    """Модель категории произведения."""
 
     name = models.CharField(max_length=200)
     slug = models.SlugField(unique=True)
+
+    class Meta:
+        ordering = ["-id"]
 
     def __str__(self):
         return self.name
 
 
 class Title(models.Model):
-    class Meta:
-        ordering = ["-id"]
+    """Модель произведения."""
 
     name = models.CharField(max_length=200)
     year = models.PositiveSmallIntegerField()
@@ -70,13 +73,20 @@ class Title(models.Model):
     genre = models.ManyToManyField(Genre, through="GenreTitle")
     description = models.TextField(blank=True)
 
+    class Meta:
+        ordering = ["-id"]
+
 
 class GenreTitle(models.Model):
+    """Модель связи многие-ко-многим произведения и жанра."""
+
     title = models.ForeignKey(Title, on_delete=models.CASCADE)
     genre = models.ForeignKey(Genre, on_delete=models.CASCADE)
 
 
 class Review(models.Model):
+    """Модель отзыва к произведению."""
+
     title = models.ForeignKey(
         Title, on_delete=models.CASCADE, related_name="review"
     )
@@ -89,6 +99,8 @@ class Review(models.Model):
 
 
 class Comment(models.Model):
+    """Модель комментария к отзыву."""
+
     text = models.TextField()
     review = models.ForeignKey(
         Review, on_delete=models.CASCADE, related_name="comment"

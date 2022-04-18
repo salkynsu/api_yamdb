@@ -1,26 +1,19 @@
 import django_filters
-
-from django.shortcuts import get_object_or_404
 from django.core.mail import send_mail
+from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
-from rest_framework import filters, viewsets, views, status
-from rest_framework.mixins import (
-    CreateModelMixin,
-    ListModelMixin,
-    UpdateModelMixin,
-)
-from rest_framework.permissions import (
-    AllowAny,
-    IsAdminUser,
-    IsAuthenticatedOrReadOnly,
-    IsAuthenticated,
-)
-from rest_framework_simplejwt.tokens import RefreshToken
+
+from rest_framework import filters, status, views, viewsets
+from rest_framework.mixins import (CreateModelMixin, DestroyModelMixin,
+                                   ListModelMixin)
+from rest_framework.permissions import (AllowAny, IsAdminUser, IsAuthenticated,
+                                        IsAuthenticatedOrReadOnly)
+
 from rest_framework.response import Response
-
+from rest_framework_simplejwt.tokens import RefreshToken
 from reviews.models import Category, Genre, Title, User
-from .permissions import AdminOrReadOnly, AdminOnly, UserPermissions
 
+from .permissions import AdminOrReadOnly, AdminOnly, UserPermissions
 
 from .serializers import (
     CategorySerializer,
@@ -69,7 +62,7 @@ class MyTokenObtainPairView(views.APIView):
 
 
 class NewUserViewSet(CreateModelMixin, viewsets.GenericViewSet):
-    """Регистрация нового пользователия.
+    """Регистрация нового пользователя.
     Отправка tokena на email пользователя."""
 
     queryset = User.objects.all()
@@ -96,7 +89,12 @@ class NewUserViewSet(CreateModelMixin, viewsets.GenericViewSet):
         )
 
 
-class GenreViewSet(viewsets.ModelViewSet):
+class GenreViewSet(
+    CreateModelMixin,
+    ListModelMixin,
+    DestroyModelMixin,
+    viewsets.GenericViewSet,
+):
     permission_classes = [
         AdminOrReadOnly,
     ]
@@ -104,9 +102,15 @@ class GenreViewSet(viewsets.ModelViewSet):
     serializer_class = GenreSerializer
     filter_backends = (filters.SearchFilter,)
     search_fields = ("name",)
+    lookup_field = "slug"
 
 
-class CategoryViewSet(viewsets.ModelViewSet):
+class CategoryViewSet(
+    CreateModelMixin,
+    ListModelMixin,
+    DestroyModelMixin,
+    viewsets.GenericViewSet,
+):
     permission_classes = [
         AdminOrReadOnly,
     ]
@@ -114,11 +118,14 @@ class CategoryViewSet(viewsets.ModelViewSet):
     serializer_class = CategorySerializer
     filter_backends = (filters.SearchFilter,)
     search_fields = ("name",)
+    lookup_field = "slug"
 
 
 class TitleFilter(django_filters.FilterSet):
-    category = django_filters.CharFilter(field_name="slug")
-    genre = django_filters.CharFilter(field_name="slug")
+    category = django_filters.CharFilter(field_name="category__slug")
+    genre = django_filters.CharFilter(field_name="genre__slug")
+    name = django_filters.CharFilter(field_name="name", lookup_expr='icontains')
+    year = django_filters.NumberFilter(field_name="year")
 
     class Meta:
         model = Title
