@@ -8,6 +8,7 @@ from .views import (
     NewUserViewSet,
     MyTokenObtainPairView,
     ListUsersViewSet,
+    UserMeViewsSet,
 )
 
 app_name = "api"
@@ -17,6 +18,7 @@ router.register("categories", CategoryViewSet)
 router.register("genres", GenreViewSet)
 router.register("titles", TitleViewSet)
 router.register("auth/signup", NewUserViewSet)
+router.register("users/me", UserMeViewsSet, basename="user_info")
 router.register("users", ListUsersViewSet)
 
 urlpatterns = [
