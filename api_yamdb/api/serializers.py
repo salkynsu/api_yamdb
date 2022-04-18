@@ -2,7 +2,7 @@ from django.db.models import Avg
 from rest_framework import relations, serializers
 from reviews.models import Category, Genre, Review, Title, User
 
-# from rest_framework.validators import UniqueTogetherValidator
+from rest_framework.validators import UniqueTogetherValidator
 
 
 
@@ -21,16 +21,21 @@ class ListUsersSerializer(serializers.ModelSerializer):
 
 class MyTokenObtainPairSerializer(serializers.ModelSerializer):
     username = relations.SlugRelatedField(
-        read_only=True, slug_field="username"
+        slug_field="username",
+        queryset=User.objects.all(),
+        default=serializers.CurrentUserDefault(),
     )
+    # read_only = True
+    confirmation_code = serializers.CharField(source="token")
 
     class Meta:
         model = User
-        fields = ("username", "token")
+        fields = ("username", "confirmation_code")
 
         # validators = [
         #    UniqueTogetherValidator(
-        #        queryset=User.objects.all(), fields=["username", "token"]
+        #        queryset=User.objects.all(),
+        #        fields=["username", "confirmation_code"],
         #    )
         # ]
 
@@ -100,4 +105,17 @@ class TitlePostSerializer(serializers.ModelSerializer):
             "description",
             "category",
             "genre",
+        )
+
+
+class UserMeSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = (
+            "username",
+            "email",
+            "first_name",
+            "last_name",
+            "bio",
+            "role",
         )
