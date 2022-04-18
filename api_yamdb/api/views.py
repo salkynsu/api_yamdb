@@ -10,14 +10,11 @@ from rest_framework.permissions import (AllowAny, IsAdminUser, IsAuthenticated,
                                         IsAuthenticatedOrReadOnly)
 
 from rest_framework.response import Response
-<<<<<<< HEAD
 from rest_framework_simplejwt.tokens import RefreshToken
-from reviews.models import Category, Genre, Title, User
-=======
+
 
 from reviews.models import Category, Genre, Title, User, Review, Comment
-from .permissions import AdminOrReadOnly, AdminOnly
->>>>>>> review/comment
+
 
 from .permissions import AdminOrReadOnly, AdminOnly, UserPermissions
 
