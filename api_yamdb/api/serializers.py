@@ -18,6 +18,20 @@ class ListUsersSerializer(serializers.ModelSerializer):
         )
 
 
+class UserDetailSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = (
+            "username",
+            "email",
+            "first_name",
+            "last_name",
+            "bio",
+            "role",
+        )
+        read_only_fields = ("role",)
+
+
 class MyTokenObtainPairSerializer(serializers.ModelSerializer):
     username = relations.SlugRelatedField(
         slug_field="username",
@@ -121,17 +135,4 @@ class TitlePostSerializer(serializers.ModelSerializer):
             "description",
             "category",
             "genre",
-        )
-
-
-class UserMeSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = User
-        fields = (
-            "username",
-            "email",
-            "first_name",
-            "last_name",
-            "bio",
-            "role",
         )
