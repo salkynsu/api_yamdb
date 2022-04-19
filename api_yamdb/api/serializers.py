@@ -19,24 +19,13 @@ class ListUsersSerializer(serializers.ModelSerializer):
 
 
 class MyTokenObtainPairSerializer(serializers.ModelSerializer):
-    username = relations.SlugRelatedField(
-        slug_field="username",
-        queryset=User.objects.all(),
-        default=serializers.CurrentUserDefault(),
-    )
-    # read_only = True
-    confirmation_code = serializers.CharField(source="token")
+    username = serializers.CharField(required=True)
+    confirmation_code = serializers.CharField(source="token", required=True)
 
     class Meta:
         model = User
         fields = ("username", "confirmation_code")
 
-        # validators = [
-        #    UniqueTogetherValidator(
-        #        queryset=User.objects.all(),
-        #        fields=["username", "confirmation_code"],
-        #    )
-        # ]
 
 
 class NewUserSerializer(serializers.ModelSerializer):
