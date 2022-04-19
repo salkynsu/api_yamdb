@@ -3,22 +3,18 @@ import django_filters
 from django.core.mail import send_mail
 from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
+
 from rest_framework import filters, status, views, viewsets, generics
-from rest_framework.mixins import (
-    CreateModelMixin,
-    DestroyModelMixin,
-    ListModelMixin,
-)
-from rest_framework.permissions import (
-    AllowAny,
-    IsAuthenticated,
-)
+from rest_framework.mixins import (CreateModelMixin, DestroyModelMixin,
+                                   ListModelMixin)
+from rest_framework.permissions import (AllowAny, IsAdminUser, IsAuthenticated,
+                                        IsAuthenticatedOrReadOnly)
+
 from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import RefreshToken
-
 from reviews.models import Category, Genre, Title, User, Review, Comment
 
-from .permissions import AdminOrReadOnly, AdminOnly, UserPermissions
+from .permissions import AdminModeratorOrReadOnly, AdminOrReadOnly, AdminOnly, UserPermissions
 
 from .serializers import (
     CategorySerializer,
@@ -171,6 +167,15 @@ class ListUsersViewSet(viewsets.ModelViewSet):
     lookup_field = "username"
 
 
+# class UserMeViewsSet(viewsets.GenericViewSet):
+#    serializer_class = UserMeSerializer
+#    permission_classes = [IsAuthenticated, AdminOnly]
+#    pagination_class = None
+#
+#    def get_queryset(self):
+#        return User.objects.filter(username=self.request.user)
+
+
 class UserMeAPIView(generics.RetrieveAPIView):
     permission_classes = [IsAuthenticated, UserPermissions]
     pagination_class = None
@@ -194,10 +199,11 @@ class UserMeAPIView(generics.RetrieveAPIView):
         return Response(
             data="Неверные данные", status=status.HTTP_400_BAD_REQUEST
         )
-      
+
 
 class ReviewViewSet(viewsets.ModelViewSet):
     serializer_class = ReviewSerializer
+    permission_classes = [AdminModeratorOrReadOnly,]
 
     def get_queryset(self):
         title_id = self.kwargs.get("title_id")
@@ -207,11 +213,31 @@ class ReviewViewSet(viewsets.ModelViewSet):
         return reviews
 
     def perform_create(self, serializer):
-        serializer.save(
-            author=self.request.user, title_id=self.kwargs.get("title_id"))
+        title_id = self.kwargs.get("title_id")
+        # if Review.objects.filter(
+        #     title=get_object_or_404(Title, pk=title_id), 
+        #     author=self.request.user
+        # ).exists():
+        #     return Response(
+        #     data="Вы уже оставляли отзыв к этому произведению", 
+        #     status=status.HTTP_400_BAD_REQUEST
+        # )
+        serializer.save(author=self.request.user, title_id=title_id)
 
 
 class CommentViewSet(viewsets.ModelViewSet):
-    queryset = Comment.objects.all()
+    #queryset = Comment.objects.all()
     serializer_class = CommentSerializer
-    filterset_class = TitleFilter
+    #filterset_class = TitleFilter
+    permission_classes = [AdminModeratorOrReadOnly,]
+
+    def get_queryset(self):
+        review_id = self.kwargs.get("review_id")
+        comments = Comment.objects.filter(
+            review=get_object_or_404(Review, pk=review_id)
+        )
+        return comments 
+
+    def perform_create(self, serializer):
+        review_id = self.kwargs.get("review_id")
+        serializer.save(author=self.request.user, review_id=review_id)
