@@ -1,33 +1,23 @@
 import django_filters
-
 from django.core.mail import send_mail
 from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
-
-from rest_framework import filters, status, views, viewsets, generics
+from rest_framework import filters, generics, status, views, viewsets
 from rest_framework.mixins import (CreateModelMixin, DestroyModelMixin,
                                    ListModelMixin)
 from rest_framework.permissions import (AllowAny, IsAdminUser, IsAuthenticated,
                                         IsAuthenticatedOrReadOnly)
-
 from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import RefreshToken
-from reviews.models import Category, Genre, Title, User, Review, Comment
+from reviews.models import Category, Comment, Genre, Review, Title, User
 
-from .permissions import AdminModeratorOrReadOnly, AdminOrReadOnly, AdminOnly, UserPermissions
-
-from .serializers import (
-    CategorySerializer,
-    CommentSerializer,
-    GenreSerializer,
-    ReviewSerializer,
-    TitleSerializer,
-    TitlePostSerializer,
-    NewUserSerializer,
-    MyTokenObtainPairSerializer,
-    ListUsersSerializer,
-    UserDetailSerializer,
-)
+from .permissions import (AdminModeratorOrReadOnly, AdminOnly, AdminOrReadOnly,
+                          UserPermissions)
+from .serializers import (CategorySerializer, CommentSerializer,
+                          GenreSerializer, ListUsersSerializer,
+                          MyTokenObtainPairSerializer, NewUserSerializer,
+                          ReviewSerializer, TitlePostSerializer,
+                          TitleSerializer, UserDetailSerializer)
 
 
 class MyTokenObtainPairView(views.APIView):
@@ -150,7 +140,7 @@ class TitleViewSet(viewsets.ModelViewSet):
     queryset = Title.objects.all()
     serializer_class = TitleSerializer
     filter_backends = (DjangoFilterBackend,)
-    filterset_fields = ("category", "genre", "name", "year")
+    filterset_class = TitleFilter
 
     def get_serializer_class(self):
         if self.action in ["list", "retrieve"]:
@@ -203,7 +193,9 @@ class UserMeAPIView(generics.RetrieveAPIView):
 
 class ReviewViewSet(viewsets.ModelViewSet):
     serializer_class = ReviewSerializer
-    permission_classes = [AdminModeratorOrReadOnly,]
+    permission_classes = [
+        AdminModeratorOrReadOnly,
+    ]
 
     def get_queryset(self):
         title_id = self.kwargs.get("title_id")
@@ -215,28 +207,30 @@ class ReviewViewSet(viewsets.ModelViewSet):
     def perform_create(self, serializer):
         title_id = self.kwargs.get("title_id")
         # if Review.objects.filter(
-        #     title=get_object_or_404(Title, pk=title_id), 
+        #     title=get_object_or_404(Title, pk=title_id),
         #     author=self.request.user
         # ).exists():
         #     return Response(
-        #     data="Вы уже оставляли отзыв к этому произведению", 
+        #     data="Вы уже оставляли отзыв к этому произведению",
         #     status=status.HTTP_400_BAD_REQUEST
         # )
         serializer.save(author=self.request.user, title_id=title_id)
 
 
 class CommentViewSet(viewsets.ModelViewSet):
-    #queryset = Comment.objects.all()
+    # queryset = Comment.objects.all()
     serializer_class = CommentSerializer
-    #filterset_class = TitleFilter
-    permission_classes = [AdminModeratorOrReadOnly,]
+    # filterset_class = TitleFilter
+    permission_classes = [
+        AdminModeratorOrReadOnly,
+    ]
 
     def get_queryset(self):
         review_id = self.kwargs.get("review_id")
         comments = Comment.objects.filter(
             review=get_object_or_404(Review, pk=review_id)
         )
-        return comments 
+        return comments
 
     def perform_create(self, serializer):
         review_id = self.kwargs.get("review_id")
