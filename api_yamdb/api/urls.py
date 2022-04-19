@@ -9,7 +9,7 @@ from .views import (
     MyTokenObtainPairView,
     ListUsersViewSet,
     UserMeAPIView,
-    UserMeUpdateAPIview,
+    # UserMeUpdateAPIview,
 )
 
 app_name = "api"
@@ -27,7 +27,6 @@ urlpatterns = [
         MyTokenObtainPairView.as_view(),
         name="token_obtain_pair",
     ),
-    path("v1/users/me/", UserMeAPIView.as_view(), name="me_detail"),
-    path("v1/users/me/", UserMeUpdateAPIview.as_view(), name="me_patch"),
+    path("v1/users/me/", UserMeAPIView.as_view()),
     path("v1/", include(router.urls)),
 ]

@@ -8,18 +8,14 @@ from rest_framework.mixins import (
     CreateModelMixin,
     DestroyModelMixin,
     ListModelMixin,
-    RetrieveModelMixin,
 )
 from rest_framework.permissions import (
     AllowAny,
-    IsAdminUser,
     IsAuthenticated,
-    IsAuthenticatedOrReadOnly,
 )
 from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import RefreshToken
 from reviews.models import Category, Genre, Title, User
-
 from .permissions import AdminOrReadOnly, AdminOnly, UserPermissions
 
 from .serializers import (
@@ -172,20 +168,25 @@ class ListUsersViewSet(viewsets.ModelViewSet):
 
 
 class UserMeAPIView(generics.RetrieveAPIView):
-    serializer_class = ListUsersSerializer
     permission_classes = [IsAuthenticated, UserPermissions]
     pagination_class = None
 
-    def get_object(self):
-        username = self.request.user
-        return get_object_or_404(User, username=username)
+    def get_queryset(self):
+        return get_object_or_404(User, username=self.request.user)
 
+    def get(self, request):
+        queryset = self.get_queryset()
+        serializer = ListUsersSerializer(queryset)
+        return Response(data=serializer.data)
 
-class UserMeUpdateAPIview(generics.RetrieveUpdateAPIView):
-    serializer_class = UserDetailSerializer
-    permission_classes = [AdminOnly, UserPermissions]
-    pagination_class = None
-    # lookup_field = "username"
-
-    def patch(self, request, *args, **kwargs):
-        return self.update(request, *args, **kwargs)
+    def patch(self, request):
+        queryset = self.get_queryset()
+        serializer = UserDetailSerializer(
+            queryset, data=request.data, partial=True
+        )
+        if serializer.is_valid():
+            serializer.save()
+            return Response(data=serializer.data, status=status.HTTP_200_OK)
+        return Response(
+            data="Неверные данные", status=status.HTTP_400_BAD_REQUEST
+        )

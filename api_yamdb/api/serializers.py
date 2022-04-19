@@ -27,7 +27,9 @@ class UserDetailSerializer(serializers.ModelSerializer):
             "first_name",
             "last_name",
             "bio",
+            "role",
         )
+        read_only_fields = ("role",)
 
 
 class MyTokenObtainPairSerializer(serializers.ModelSerializer):
