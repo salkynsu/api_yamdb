@@ -15,12 +15,16 @@ from rest_framework.permissions import (
 )
 from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import RefreshToken
-from reviews.models import Category, Genre, Title, User
+
+from reviews.models import Category, Genre, Title, User, Review, Comment
+
 from .permissions import AdminOrReadOnly, AdminOnly, UserPermissions
 
 from .serializers import (
     CategorySerializer,
+    CommentSerializer,
     GenreSerializer,
+    ReviewSerializer,
     TitleSerializer,
     TitlePostSerializer,
     NewUserSerializer,
@@ -150,7 +154,7 @@ class TitleViewSet(viewsets.ModelViewSet):
     queryset = Title.objects.all()
     serializer_class = TitleSerializer
     filter_backends = (DjangoFilterBackend,)
-    filterset_class = TitleFilter
+    filterset_fields = ("category", "genre", "name", "year")
 
     def get_serializer_class(self):
         if self.action in ["list", "retrieve"]:
@@ -190,3 +194,24 @@ class UserMeAPIView(generics.RetrieveAPIView):
         return Response(
             data="Неверные данные", status=status.HTTP_400_BAD_REQUEST
         )
+      
+
+class ReviewViewSet(viewsets.ModelViewSet):
+    serializer_class = ReviewSerializer
+
+    def get_queryset(self):
+        title_id = self.kwargs.get("title_id")
+        reviews = Review.objects.filter(
+            title=get_object_or_404(Title, pk=title_id)
+        )
+        return reviews
+
+    def perform_create(self, serializer):
+        serializer.save(
+            author=self.request.user, title_id=self.kwargs.get("title_id"))
+
+
+class CommentViewSet(viewsets.ModelViewSet):
+    queryset = Comment.objects.all()
+    serializer_class = CommentSerializer
+    filterset_class = TitleFilter
