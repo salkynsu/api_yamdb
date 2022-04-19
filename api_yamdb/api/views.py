@@ -38,23 +38,8 @@ from .serializers import (
 
 class MyTokenObtainPairView(views.APIView):
     permission_classes = [AllowAny]
-
+    
     def post(self, serializer):
-        # serializer = MyTokenObtainPairSerializer(data=serializer.data)
-        # serializer.is_valid(raise_exception=True)
-        # token = serializer.validated_data["token"]
-        # user = get_object_or_404(User, token=token)
-        # if user.exists():
-        #    refresh = RefreshToken.for_user(
-        #        User.objects.filter(username=username)
-        #    )
-        #    result = {
-        #        "token": str(refresh.access_token),
-        #    }
-        #    return Response(status=status.HTTP_200_OK, data=result)
-        # return Response(
-        #    status=status.HTTP_404_NOT_FOUND, data=serializer.errors
-        # )
         serializer = MyTokenObtainPairSerializer(data=serializer.data)
         if serializer.is_valid(raise_exception=True):
             try:
@@ -172,14 +157,6 @@ class ListUsersViewSet(viewsets.ModelViewSet):
     search_fields = ("username",)
     lookup_field = "username"
 
-
-# class UserMeViewsSet(viewsets.GenericViewSet):
-#    serializer_class = UserMeSerializer
-#    permission_classes = [IsAuthenticated, AdminOnly]
-#    pagination_class = None
-#
-#    def get_queryset(self):
-#        return User.objects.filter(username=self.request.user)
 
 
 class UserMeAPIView(generics.RetrieveAPIView):
