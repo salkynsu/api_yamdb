@@ -97,6 +97,11 @@ class Review(models.Model):
     score = models.PositiveSmallIntegerField()
     pub_date = models.DateTimeField(auto_now_add=True)
 
+    class Meta:
+        ordering = ["-id"]
+        # unique_together = ('title', 'author')
+        # constraints = [models.UniqueConstraint(fields=['title', 'author'], name='unique_title_author')]
+
 
 class Comment(models.Model):
     """Модель комментария к отзыву."""
@@ -109,3 +114,6 @@ class Comment(models.Model):
         User, on_delete=models.CASCADE, related_name="comment"
     )
     pub_date = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-id"]
