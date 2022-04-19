@@ -37,8 +37,10 @@ from .serializers import (
 
 
 class MyTokenObtainPairView(views.APIView):
+    """Получение токена."""
+
     permission_classes = [AllowAny]
-    
+
     def post(self, serializer):
         serializer = MyTokenObtainPairSerializer(data=serializer.data)
         if serializer.is_valid(raise_exception=True):
@@ -86,6 +88,40 @@ class NewUserViewSet(CreateModelMixin, viewsets.GenericViewSet):
         )
         return Response(
             serializer.data, status=status.HTTP_200_OK, headers=headers
+        )
+
+
+class ListUsersViewSet(viewsets.ModelViewSet):
+    queryset = User.objects.all()
+    serializer_class = ListUsersSerializer
+    permission_classes = [IsAuthenticated, AdminOnly]
+    filter_backends = (filters.SearchFilter,)
+    search_fields = ("username",)
+    lookup_field = "username"
+
+
+class UserMeAPIView(generics.RetrieveAPIView):
+    permission_classes = [IsAuthenticated, UserPermissions]
+    pagination_class = None
+
+    def get_queryset(self):
+        return get_object_or_404(User, username=self.request.user)
+
+    def get(self, request):
+        queryset = self.get_queryset()
+        serializer = ListUsersSerializer(queryset)
+        return Response(data=serializer.data)
+
+    def patch(self, request):
+        queryset = self.get_queryset()
+        serializer = UserDetailSerializer(
+            queryset, data=request.data, partial=True
+        )
+        if serializer.is_valid():
+            serializer.save()
+            return Response(data=serializer.data, status=status.HTTP_200_OK)
+        return Response(
+            data="Неверные данные", status=status.HTTP_400_BAD_REQUEST
         )
 
 
@@ -147,41 +183,6 @@ class TitleViewSet(viewsets.ModelViewSet):
         if self.action in ["list", "retrieve"]:
             return TitleSerializer
         return TitlePostSerializer
-
-
-class ListUsersViewSet(viewsets.ModelViewSet):
-    queryset = User.objects.all()
-    serializer_class = ListUsersSerializer
-    permission_classes = [IsAuthenticated, AdminOnly]
-    filter_backends = (filters.SearchFilter,)
-    search_fields = ("username",)
-    lookup_field = "username"
-
-
-
-class UserMeAPIView(generics.RetrieveAPIView):
-    permission_classes = [IsAuthenticated, UserPermissions]
-    pagination_class = None
-
-    def get_queryset(self):
-        return get_object_or_404(User, username=self.request.user)
-
-    def get(self, request):
-        queryset = self.get_queryset()
-        serializer = ListUsersSerializer(queryset)
-        return Response(data=serializer.data)
-
-    def patch(self, request):
-        queryset = self.get_queryset()
-        serializer = UserDetailSerializer(
-            queryset, data=request.data, partial=True
-        )
-        if serializer.is_valid():
-            serializer.save()
-            return Response(data=serializer.data, status=status.HTTP_200_OK)
-        return Response(
-            data="Неверные данные", status=status.HTTP_400_BAD_REQUEST
-        )
 
 
 class ReviewViewSet(viewsets.ModelViewSet):
