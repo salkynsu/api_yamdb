@@ -100,8 +100,10 @@ class Review(models.Model):
     class Meta:
         ordering = ["-id"]
         constraints = [
-        models.UniqueConstraint(fields=['title', 'author'], name='author_review_title')
-    ]
+            models.UniqueConstraint(
+                fields=["title", "author"], name="author_review_title"
+            )
+        ]
 
 
 class Comment(models.Model):

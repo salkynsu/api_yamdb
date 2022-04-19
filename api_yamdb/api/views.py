@@ -10,9 +10,7 @@ from rest_framework.mixins import (
 )
 from rest_framework.permissions import (
     AllowAny,
-    IsAdminUser,
     IsAuthenticated,
-    IsAuthenticatedOrReadOnly,
 )
 from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import RefreshToken
@@ -242,5 +240,5 @@ class CommentViewSet(viewsets.ModelViewSet):
 
     def perform_create(self, serializer):
         review_id = self.kwargs.get("review_id")
-        review = get_object_or_404(Review, pk=review_id)
+        get_object_or_404(Review, pk=review_id)
         serializer.save(author=self.request.user, review_id=review_id)

@@ -1,7 +1,7 @@
 from django.db.models import Avg
 from django.shortcuts import get_object_or_404
 from rest_framework import relations, serializers
-from rest_framework.validators import UniqueTogetherValidator
+# from rest_framework.validators import UniqueTogetherValidator
 from reviews.models import Category, Comment, Genre, Review, Title, User
 
 
