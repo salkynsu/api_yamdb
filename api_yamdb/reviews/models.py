@@ -85,14 +85,13 @@ class GenreTitle(models.Model):
 
 
 class Review(models.Model):
-    """Модель отзыва к произведению."""
 
     title = models.ForeignKey(
-        Title, on_delete=models.CASCADE, related_name="review"
+        Title, on_delete=models.CASCADE, related_name="reviews"
     )
     text = models.TextField()
     author = models.ForeignKey(
-        User, on_delete=models.CASCADE, related_name="review"
+        User, on_delete=models.CASCADE, related_name="reviews"
     )
     score = models.PositiveSmallIntegerField()
     pub_date = models.DateTimeField(auto_now_add=True)
@@ -107,14 +106,13 @@ class Review(models.Model):
 
 
 class Comment(models.Model):
-    """Модель комментария к отзыву."""
 
     text = models.TextField()
     review = models.ForeignKey(
-        Review, on_delete=models.CASCADE, related_name="comment"
+        Review, on_delete=models.CASCADE, related_name="comments"
     )
     author = models.ForeignKey(
-        User, on_delete=models.CASCADE, related_name="comment"
+        User, on_delete=models.CASCADE, related_name="comments"
     )
     pub_date = models.DateTimeField(auto_now_add=True)
 

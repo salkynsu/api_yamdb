@@ -5,11 +5,11 @@ from .views import (
     CategoryViewSet,
     CommentViewSet,
     GenreViewSet,
+    ListUsersViewSet,
+    MyTokenObtainPairView,
+    NewUserViewSet,
     ReviewViewSet,
     TitleViewSet,
-    NewUserViewSet,
-    MyTokenObtainPairView,
-    ListUsersViewSet,
     UserMeAPIView,
 )
 
