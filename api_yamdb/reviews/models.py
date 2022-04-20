@@ -4,14 +4,18 @@ import os
 from django.contrib.auth.models import AbstractUser
 from django.db import models
 
+USER = "user"
+MODERATOR = "moderator"
+ADMIN = "admin"
+
 
 class User(AbstractUser):
     """Модель пользователя."""
 
     ROLE_CHOICE = (
-        ("user", "user"),
-        ("moderator", "moderator"),
-        ("admin", "admin"),
+        (USER, "user"),
+        (MODERATOR, "moderator"),
+        (ADMIN, "admin"),
     )
 
     email = models.EmailField(unique=True)
