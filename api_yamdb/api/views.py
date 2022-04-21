@@ -87,7 +87,7 @@ class NewUserViewSet(CreateModelMixin, viewsets.GenericViewSet):
 
 
 class ListUsersViewSet(viewsets.ModelViewSet):
-    queryset = User.objects.all()
+    queryset = User.objects.all().order_by("-id")
     serializer_class = ListUsersSerializer
     permission_classes = [IsAuthenticated, AdminOnly]
     filter_backends = (filters.SearchFilter,)
