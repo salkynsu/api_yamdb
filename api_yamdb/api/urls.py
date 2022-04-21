@@ -26,7 +26,6 @@ router.register(
     CommentViewSet,
 )
 router.register("auth/signup", NewUserViewSet)
-router.register("users", ListUsersViewSet)
 
 urlpatterns = [
     path(
