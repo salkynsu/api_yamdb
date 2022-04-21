@@ -1,13 +1,9 @@
-import django_filters
+from django.db.models import Avg
 from django.core.mail import send_mail
 from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import filters, generics, status, views, viewsets
-from rest_framework.mixins import (
-    CreateModelMixin,
-    DestroyModelMixin,
-    ListModelMixin,
-)
+from rest_framework.mixins import CreateModelMixin
 from rest_framework.permissions import (
     AllowAny,
     IsAuthenticated,
@@ -16,6 +12,8 @@ from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import RefreshToken
 from reviews.models import Category, Comment, Genre, Review, Title, User
 
+from .filters import TitleFilter
+from .mixins import CreateListDestroyModelMixin
 from .permissions import (
     AdminModeratorOrReadOnly,
     AdminOnly,
@@ -37,8 +35,6 @@ from .serializers import (
 
 
 class MyTokenObtainPairView(views.APIView):
-    """Получение токена."""
-
     permission_classes = [AllowAny]
 
     def post(self, serializer):
@@ -64,9 +60,6 @@ class MyTokenObtainPairView(views.APIView):
 
 
 class NewUserViewSet(CreateModelMixin, viewsets.GenericViewSet):
-    """Регистрация нового пользователя.
-    Отправка tokena на email пользователя."""
-
     queryset = User.objects.all()
     serializer_class = NewUserSerializer
     permission_classes = [AllowAny]
@@ -92,7 +85,7 @@ class NewUserViewSet(CreateModelMixin, viewsets.GenericViewSet):
 
 
 class ListUsersViewSet(viewsets.ModelViewSet):
-    queryset = User.objects.all()
+    queryset = User.objects.all().order_by("-id")
     serializer_class = ListUsersSerializer
     permission_classes = [IsAuthenticated, AdminOnly]
     filter_backends = (filters.SearchFilter,)
@@ -125,49 +118,26 @@ class UserMeAPIView(generics.RetrieveAPIView):
         )
 
 
-class GenreViewSet(
-    CreateModelMixin,
-    ListModelMixin,
-    DestroyModelMixin,
-    viewsets.GenericViewSet,
-):
+class GenreViewSet(CreateListDestroyModelMixin, viewsets.GenericViewSet):
     permission_classes = [
         AdminOrReadOnly,
     ]
-    queryset = Genre.objects.all()
+    queryset = Genre.objects.all().order_by("-id")
     serializer_class = GenreSerializer
     filter_backends = (filters.SearchFilter,)
     search_fields = ("name",)
     lookup_field = "slug"
 
 
-class CategoryViewSet(
-    CreateModelMixin,
-    ListModelMixin,
-    DestroyModelMixin,
-    viewsets.GenericViewSet,
-):
+class CategoryViewSet(CreateListDestroyModelMixin, viewsets.GenericViewSet):
     permission_classes = [
         AdminOrReadOnly,
     ]
-    queryset = Category.objects.all()
+    queryset = Category.objects.all().order_by("-id")
     serializer_class = CategorySerializer
     filter_backends = (filters.SearchFilter,)
     search_fields = ("name",)
     lookup_field = "slug"
-
-
-class TitleFilter(django_filters.FilterSet):
-    category = django_filters.CharFilter(field_name="category__slug")
-    genre = django_filters.CharFilter(field_name="genre__slug")
-    name = django_filters.CharFilter(
-        field_name="name", lookup_expr="icontains"
-    )
-    year = django_filters.NumberFilter(field_name="year")
-
-    class Meta:
-        model = Title
-        fields = ["category", "genre", "name", "year"]
 
 
 class TitleViewSet(viewsets.ModelViewSet):
@@ -178,6 +148,11 @@ class TitleViewSet(viewsets.ModelViewSet):
     serializer_class = TitleSerializer
     filter_backends = (DjangoFilterBackend,)
     filterset_class = TitleFilter
+
+    def get_queryset(self):
+        return Title.objects.annotate(rating=Avg("reviews__score")).order_by(
+            "-id"
+        )
 
     def get_serializer_class(self):
         if self.action in ["list", "retrieve"]:
@@ -194,7 +169,7 @@ class ReviewViewSet(viewsets.ModelViewSet):
     def get_queryset(self):
         title_id = self.kwargs.get("title_id")
         title = get_object_or_404(Title, pk=title_id)
-        return title.reviews.all()
+        return title.reviews.all().order_by("-pub_date")
 
     def perform_create(self, serializer):
         title_id = self.kwargs.get("title_id")
@@ -211,7 +186,7 @@ class CommentViewSet(viewsets.ModelViewSet):
         review_id = self.kwargs.get("review_id")
         comments = Comment.objects.filter(
             review=get_object_or_404(Review, pk=review_id)
-        )
+        ).order_by("-pub_date")
         return comments
 
     def perform_create(self, serializer):

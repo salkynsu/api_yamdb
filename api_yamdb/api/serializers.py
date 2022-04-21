@@ -1,4 +1,5 @@
-from django.db.models import Avg
+import datetime
+
 from django.shortcuts import get_object_or_404
 from rest_framework import relations, serializers
 from reviews.models import Category, Comment, Genre, Review, Title, User
@@ -42,19 +43,19 @@ class NewUserSerializer(serializers.ModelSerializer):
 class GenreSerializer(serializers.ModelSerializer):
     class Meta:
         model = Genre
-        fields = ("name", "slug")
+        exclude = ["id"]
 
 
 class CategorySerializer(serializers.ModelSerializer):
     class Meta:
         model = Category
-        fields = ("name", "slug")
+        exclude = ["id"]
 
 
 class TitleSerializer(serializers.ModelSerializer):
     genre = GenreSerializer(required=True, many=True)
     category = CategorySerializer(required=True)
-    rating = serializers.SerializerMethodField()
+    rating = serializers.IntegerField()
 
     class Meta:
         model = Title
@@ -67,11 +68,6 @@ class TitleSerializer(serializers.ModelSerializer):
             "category",
             "genre",
         )
-
-    def get_rating(self, obj):
-        reviews = Review.objects.filter(title=obj)
-        rating = reviews.aggregate(Avg("score")).get("score__avg")
-        return rating
 
 
 class TitlePostSerializer(serializers.ModelSerializer):
@@ -92,6 +88,13 @@ class TitlePostSerializer(serializers.ModelSerializer):
             "category",
             "genre",
         )
+
+    def validate_year(self, value):
+        if value > datetime.datetime.now().year:
+            raise serializers.ValidationError(
+                "Год должен быть не больше текущего."
+            )
+        return value
 
 
 class UserDetailSerializer(serializers.ModelSerializer):
@@ -118,7 +121,7 @@ class ReviewSerializer(serializers.ModelSerializer):
     def validate_score(self, value):
         if not (1 <= value <= 10):
             raise serializers.ValidationError(
-                "Оценка должна быть числом от 1 до 10"
+                "Оценка должна быть числом от 1 до 10."
             )
         return value
 
