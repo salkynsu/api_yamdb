@@ -1,7 +1,9 @@
+
 import datetime
 
 from django.shortcuts import get_object_or_404
 from rest_framework import relations, serializers
+
 from reviews.models import Category, Comment, Genre, Review, Title, User
 
 
@@ -18,7 +20,21 @@ class ListUsersSerializer(serializers.ModelSerializer):
         )
 
 
-class MyTokenObtainPairSerializer(serializers.ModelSerializer):
+class UserDetailSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = (
+            "username",
+            "email",
+            "first_name",
+            "last_name",
+            "bio",
+            "role",
+        )
+        read_only_fields = ("role",)
+
+
+class TokenObtainSerializer(serializers.ModelSerializer):
     username = serializers.CharField(required=True)
     confirmation_code = serializers.CharField(source="token", required=True)
 
@@ -28,8 +44,6 @@ class MyTokenObtainPairSerializer(serializers.ModelSerializer):
 
 
 class NewUserSerializer(serializers.ModelSerializer):
-    """Сериализатор регистрации нового пользователя."""
-
     class Meta:
         model = User
         fields = ("username", "email")

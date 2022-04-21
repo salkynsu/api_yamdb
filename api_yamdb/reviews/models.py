@@ -50,7 +50,7 @@ class Genre(models.Model):
     class Meta:
         verbose_name = "Жанр произведения"
         verbose_name_plural = "Жанры произведения"
-
+    
     def __str__(self):
         return self.name
 
@@ -92,6 +92,9 @@ class Title(models.Model):
     class Meta:
         verbose_name = "Произведение"
         verbose_name_plural = "Произведения"
+        
+    def __str__(self):
+        return self.name
 
 
 class Review(models.Model):
@@ -129,6 +132,9 @@ class Review(models.Model):
             )
         ]
 
+    def __str__(self):
+        return self.text
+      
 
 class Comment(models.Model):
     text = models.TextField(verbose_name="Текст комментария")
