@@ -10,11 +10,13 @@ from .views import (
     TitleViewSet,
     NewUserViewSet,
     TokenObtainView,
+    ListUsersViewSet,
 )
 
 app_name = "api"
 
 router = SimpleRouter()
+router.register("users", ListUsersViewSet)
 router.register("categories", CategoryViewSet)
 router.register("genres", GenreViewSet)
 router.register("titles", TitleViewSet)

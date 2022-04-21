@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from .models import Category, Comment, Genre, Title, Review, User, GenreTitle
+from .models import Category, Comment, Genre, Title, Review, User
 
 
 @admin.register(Category)
@@ -58,14 +58,6 @@ class UserAdmin(admin.ModelAdmin):
         "role",
     )
     list_editable = ("role",)
-
-
-@admin.register(GenreTitle)
-class GenreTitle(admin.ModelAdmin):
-    list_display = (
-        "genre",
-        "title",
-    )
 
 
 admin.site.site_title = "YAMBD project"

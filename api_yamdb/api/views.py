@@ -12,8 +12,7 @@ from rest_framework.permissions import (
 )
 from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import RefreshToken
-
-from reviews.models import Category, Genre, Title, User, Review
+from reviews.models import Category, Genre, Review, Title, User
 
 from .filters import TitleFilter
 from .mixins import CreateListDestroyModelMixin
@@ -23,16 +22,15 @@ from .permissions import (
     AdminOrReadOnly,
     UserPermissions,
 )
-
 from .serializers import (
     CategorySerializer,
     CommentSerializer,
     GenreSerializer,
+    ListUsersSerializer,
     TokenObtainSerializer,
     NewUserSerializer,
     ReviewSerializer,
     TitlePostSerializer,
-    ListUsersSerializer,
     TitleSerializer,
     UserDetailSerializer,
 )
@@ -89,7 +87,7 @@ class NewUserViewSet(CreateModelMixin, viewsets.GenericViewSet):
 
 
 class ListUsersViewSet(viewsets.ModelViewSet):
-    queryset = User.objects.all().order_by("-id")
+    queryset = User.objects.all()
     serializer_class = ListUsersSerializer
     permission_classes = [IsAuthenticated, AdminOnly]
     filter_backends = (filters.SearchFilter,)

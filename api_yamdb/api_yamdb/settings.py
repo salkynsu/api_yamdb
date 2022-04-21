@@ -22,7 +22,7 @@ INSTALLED_APPS = [
     "rest_framework",
     "rest_framework_simplejwt",
     "django_filters",
-    'django_extensions',
+    "django_extensions",
 ]
 
 MIDDLEWARE = [
@@ -116,4 +116,4 @@ SIMPLE_JWT = {
 EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
 EMAIL_HOST = "localhost"
 EMAIL_PORT = 25
-EMAIL_ADDRESS = "admin@admin.com"
+EMAIL_ADDRESS = "admin@admin.oi"
