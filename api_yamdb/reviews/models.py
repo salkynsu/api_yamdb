@@ -6,8 +6,6 @@ from django.db import models
 
 
 class User(AbstractUser):
-    """Модель пользователя."""
-
     ROLE_CHOICE = (
         ("user", "user"),
         ("moderator", "moderator"),
@@ -37,8 +35,6 @@ class User(AbstractUser):
 
 
 class Genre(models.Model):
-    """Модель жанра произведения."""
-
     name = models.CharField(max_length=200)
     slug = models.SlugField(unique=True)
 
@@ -50,8 +46,6 @@ class Genre(models.Model):
 
 
 class Category(models.Model):
-    """Модель категории произведения."""
-
     name = models.CharField(max_length=200)
     slug = models.SlugField(unique=True)
 
@@ -63,8 +57,6 @@ class Category(models.Model):
 
 
 class Title(models.Model):
-    """Модель произведения."""
-
     name = models.CharField(max_length=200)
     year = models.PositiveSmallIntegerField()
     category = models.ForeignKey(
@@ -76,17 +68,16 @@ class Title(models.Model):
     class Meta:
         ordering = ["-id"]
 
+    def __str__(self):
+        return self.name
+
 
 class GenreTitle(models.Model):
-    """Модель связи многие-ко-многим произведения и жанра."""
-
     title = models.ForeignKey(Title, on_delete=models.CASCADE)
     genre = models.ForeignKey(Genre, on_delete=models.CASCADE)
 
 
 class Review(models.Model):
-    """Модель отзыва к произведению."""
-
     title = models.ForeignKey(
         Title, on_delete=models.CASCADE, related_name="review"
     )
@@ -102,10 +93,11 @@ class Review(models.Model):
         # unique_together = ('title', 'author')
         # constraints = [models.UniqueConstraint(fields=['title', 'author'], name='unique_title_author')]
 
+    def __str__(self):
+        return self.text
+
 
 class Comment(models.Model):
-    """Модель комментария к отзыву."""
-
     text = models.TextField()
     review = models.ForeignKey(
         Review, on_delete=models.CASCADE, related_name="comment"

@@ -1,8 +1,8 @@
-from rest_framework import serializers, relations
-from rest_framework.relations import PrimaryKeyRelatedField, SlugRelatedField
-from reviews.models import Category, Comment, Genre, Review, Title, User
 from django.db.models import Avg
-from rest_framework.validators import UniqueTogetherValidator
+from rest_framework.relations import PrimaryKeyRelatedField, SlugRelatedField
+from rest_framework import serializers
+
+from reviews.models import Category, Comment, Genre, Review, Title, User
 
 
 class ListUsersSerializer(serializers.ModelSerializer):
@@ -32,30 +32,16 @@ class UserDetailSerializer(serializers.ModelSerializer):
         read_only_fields = ("role",)
 
 
-class MyTokenObtainPairSerializer(serializers.ModelSerializer):
-    username = relations.SlugRelatedField(
-        slug_field="username",
-        queryset=User.objects.all(),
-        default=serializers.CurrentUserDefault(),
-    )
-    # read_only = True
-    confirmation_code = serializers.CharField(source="token")
+class TokenObtainSerializer(serializers.ModelSerializer):
+    username = serializers.CharField(required=True)
+    confirmation_code = serializers.CharField(source="token", required=True)
 
     class Meta:
         model = User
         fields = ("username", "confirmation_code")
 
-        # validators = [
-        #    UniqueTogetherValidator(
-        #        queryset=User.objects.all(),
-        #        fields=["username", "confirmation_code"],
-        #    )
-        # ]
-
 
 class NewUserSerializer(serializers.ModelSerializer):
-    """Сериализатор регистрации нового пользователя."""
-
     class Meta:
         model = User
         fields = ("username", "email")

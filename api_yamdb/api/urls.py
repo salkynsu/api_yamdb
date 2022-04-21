@@ -8,10 +8,8 @@ from .views import (
     ReviewViewSet,
     TitleViewSet,
     NewUserViewSet,
-    MyTokenObtainPairView,
+    TokenObtainView,
     ListUsersViewSet,
-    UserMeAPIView,
-    # UserMeUpdateAPIview,
 )
 
 app_name = "api"
@@ -33,9 +31,8 @@ router.register("users", ListUsersViewSet)
 urlpatterns = [
     path(
         "v1/auth/token/",
-        MyTokenObtainPairView.as_view(),
+        TokenObtainView.as_view(),
         name="token_obtain_pair",
     ),
-    path("v1/users/me/", UserMeAPIView.as_view()),
     path("v1/", include(router.urls)),
 ]
