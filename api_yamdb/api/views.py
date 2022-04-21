@@ -10,7 +10,7 @@ from rest_framework.permissions import (
 )
 from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import RefreshToken
-from reviews.models import Category, Comment, Genre, Review, Title, User
+from reviews.models import Category, Genre, Review, Title, User
 
 from .filters import TitleFilter
 from .mixins import CreateListDestroyModelMixin
@@ -184,10 +184,8 @@ class CommentViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         review_id = self.kwargs.get("review_id")
-        comments = Comment.objects.filter(
-            review=get_object_or_404(Review, pk=review_id)
-        ).order_by("-pub_date")
-        return comments
+        review = get_object_or_404(Review, pk=review_id)
+        return review.comments.all().order_by("-pub_date")
 
     def perform_create(self, serializer):
         review_id = self.kwargs.get("review_id")
