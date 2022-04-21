@@ -5,17 +5,18 @@ from .views import (
     CategoryViewSet,
     CommentViewSet,
     GenreViewSet,
-    ListUsersViewSet,
-    MyTokenObtainPairView,
     NewUserViewSet,
     ReviewViewSet,
     TitleViewSet,
-    UserMeAPIView,
+    NewUserViewSet,
+    TokenObtainView,
+    ListUsersViewSet,
 )
 
 app_name = "api"
 
 router = SimpleRouter()
+router.register("users", ListUsersViewSet)
 router.register("categories", CategoryViewSet)
 router.register("genres", GenreViewSet)
 router.register("titles", TitleViewSet)
@@ -28,14 +29,12 @@ router.register(
     basename="comments",
 )
 router.register("auth/signup", NewUserViewSet)
-router.register("users", ListUsersViewSet)
 
 urlpatterns = [
     path(
         "v1/auth/token/",
-        MyTokenObtainPairView.as_view(),
+        TokenObtainView.as_view(),
         name="token_obtain_pair",
     ),
-    path("v1/users/me/", UserMeAPIView.as_view()),
     path("v1/", include(router.urls)),
 ]

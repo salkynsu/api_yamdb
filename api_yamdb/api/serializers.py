@@ -18,7 +18,7 @@ class ListUsersSerializer(serializers.ModelSerializer):
         )
 
 
-class MyTokenObtainPairSerializer(serializers.ModelSerializer):
+class TokenObtainSerializer(serializers.ModelSerializer):
     username = serializers.CharField(required=True)
     confirmation_code = serializers.CharField(source="token", required=True)
 

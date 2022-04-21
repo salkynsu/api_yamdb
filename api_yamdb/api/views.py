@@ -1,9 +1,11 @@
 from django.db.models import Avg
+from django.conf import settings
 from django.core.mail import send_mail
 from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
-from rest_framework import filters, generics, status, views, viewsets
+from rest_framework import filters, status, views, viewsets
 from rest_framework.mixins import CreateModelMixin
+from rest_framework.decorators import action
 from rest_framework.permissions import (
     AllowAny,
     IsAuthenticated,
@@ -25,7 +27,7 @@ from .serializers import (
     CommentSerializer,
     GenreSerializer,
     ListUsersSerializer,
-    MyTokenObtainPairSerializer,
+    TokenObtainSerializer,
     NewUserSerializer,
     ReviewSerializer,
     TitlePostSerializer,
@@ -34,29 +36,27 @@ from .serializers import (
 )
 
 
-class MyTokenObtainPairView(views.APIView):
+class TokenObtainView(views.APIView):
     permission_classes = [AllowAny]
 
-    def post(self, serializer):
-        serializer = MyTokenObtainPairSerializer(data=serializer.data)
-        if serializer.is_valid(raise_exception=True):
-            try:
-                user = User.objects.get(username=serializer.data["username"])
-            except User.DoesNotExist:
-                return Response(status=status.HTTP_404_NOT_FOUND)
-            token = serializer.data["confirmation_code"]
-            print(token)
-            print(user.token)
+    def post(self, request):
+        serializer = TokenObtainSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
 
-            if serializer.data["confirmation_code"] == user.token:
-                refresh = RefreshToken.for_user(user)
-                result = {
-                    "token": str(refresh.access_token),
-                }
-                return Response(status=status.HTTP_200_OK, data=result)
-            return Response(
-                status=status.HTTP_400_BAD_REQUEST, data=serializer.errors
-            )
+        try:
+            user = User.objects.get(username=serializer.data["username"])
+        except User.DoesNotExist:
+            return Response(status=status.HTTP_404_NOT_FOUND)
+
+        if serializer.validated_data["token"] == user.token:
+            refresh = RefreshToken.for_user(user)
+            result = {
+                "token": str(refresh.access_token),
+            }
+            return Response(status=status.HTTP_200_OK, data=result)
+        return Response(
+            status=status.HTTP_400_BAD_REQUEST, data=serializer.errors
+        )
 
 
 class NewUserViewSet(CreateModelMixin, viewsets.GenericViewSet):
@@ -73,9 +73,11 @@ class NewUserViewSet(CreateModelMixin, viewsets.GenericViewSet):
             "Confirmation code here",
             "Here is the confirmation code: "
             + str(
-                User.objects.get(username=serializer.data["username"]).token
+                get_object_or_404(
+                    User, username=serializer.data["username"]
+                ).token
             ),
-            "admin@admin.com",
+            settings.EMAIL_ADDRESS,
             [serializer.data["email"]],
             fail_silently=False,
         )
@@ -92,30 +94,33 @@ class ListUsersViewSet(viewsets.ModelViewSet):
     search_fields = ("username",)
     lookup_field = "username"
 
-
-class UserMeAPIView(generics.RetrieveAPIView):
-    permission_classes = [IsAuthenticated, UserPermissions]
-    pagination_class = None
-
-    def get_queryset(self):
-        return get_object_or_404(User, username=self.request.user)
-
-    def get(self, request):
-        queryset = self.get_queryset()
+    @action(
+        detail=False,
+        methods=["get"],
+        permission_classes=[IsAuthenticated],
+        url_path="me",
+        url_name="me",
+    )
+    def get_me(self, request):
+        queryset = get_object_or_404(User, username=self.request.user)
         serializer = ListUsersSerializer(queryset)
         return Response(data=serializer.data)
 
+    @action(
+        detail=False,
+        methods=["patch"],
+        permission_classes=[IsAuthenticated, UserPermissions],
+        url_path="me",
+        url_name="me_patch",
+    )
     def patch(self, request):
-        queryset = self.get_queryset()
+        queryset = get_object_or_404(User, username=self.request.user)
         serializer = UserDetailSerializer(
             queryset, data=request.data, partial=True
         )
-        if serializer.is_valid():
-            serializer.save()
-            return Response(data=serializer.data, status=status.HTTP_200_OK)
-        return Response(
-            data="Неверные данные", status=status.HTTP_400_BAD_REQUEST
-        )
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return Response(data=serializer.data, status=status.HTTP_200_OK)
 
 
 class GenreViewSet(CreateListDestroyModelMixin, viewsets.GenericViewSet):
