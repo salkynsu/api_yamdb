@@ -23,9 +23,10 @@ router.register(
 )
 router.register(
     r"titles/(?P<title_id>\d+)/reviews/(?P<review_id>\d+)/comments",
-    CommentViewSet,
+    CommentViewSet, 
 )
 router.register("auth/signup", NewUserViewSet)
+router.register("users", ListUsersViewSet)
 
 urlpatterns = [
     path(
