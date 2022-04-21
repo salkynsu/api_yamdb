@@ -28,7 +28,6 @@ router.register(
     basename="comments",
 )
 router.register("auth/signup", NewUserViewSet)
-router.register("users", ListUsersViewSet)
 
 urlpatterns = [
     path(
