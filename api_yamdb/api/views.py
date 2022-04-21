@@ -1,9 +1,11 @@
 from django.db.models import Avg
+from django.conf import settings
 from django.core.mail import send_mail
 from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
-from rest_framework import filters, generics, status, views, viewsets
+from rest_framework import filters, status, views, viewsets
 from rest_framework.mixins import CreateModelMixin
+from rest_framework.decorators import action
 from rest_framework.permissions import (
     AllowAny,
     IsAuthenticated,
@@ -123,31 +125,6 @@ class ListUsersViewSet(viewsets.ModelViewSet):
         return Response(data=serializer.data, status=status.HTTP_200_OK)
 
 
-class UserMeAPIView(generics.RetrieveAPIView):
-    permission_classes = [IsAuthenticated, UserPermissions]
-    pagination_class = None
-
-    def get_queryset(self):
-        return get_object_or_404(User, username=self.request.user)
-
-    def get(self, request):
-        queryset = self.get_queryset()
-        serializer = ListUsersSerializer(queryset)
-        return Response(data=serializer.data)
-
-    def patch(self, request):
-        queryset = self.get_queryset()
-        serializer = UserDetailSerializer(
-            queryset, data=request.data, partial=True
-        )
-        if serializer.is_valid():
-            serializer.save()
-            return Response(data=serializer.data, status=status.HTTP_200_OK)
-        return Response(
-            data="Неверные данные", status=status.HTTP_400_BAD_REQUEST
-        )
-
-
 class GenreViewSet(CreateListDestroyModelMixin, viewsets.GenericViewSet):
     permission_classes = [
         AdminOrReadOnly,
@@ -158,7 +135,7 @@ class GenreViewSet(CreateListDestroyModelMixin, viewsets.GenericViewSet):
     search_fields = ("name",)
     lookup_field = "slug"
 
-    
+
 class CategoryViewSet(CreateListDestroyModelMixin, viewsets.GenericViewSet):
     permission_classes = [
         AdminOrReadOnly,
