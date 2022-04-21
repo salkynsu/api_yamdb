@@ -115,6 +115,13 @@ class ReviewSerializer(serializers.ModelSerializer):
         model = Review
         fields = ("id", "text", "author", "score", "pub_date")
 
+    def validate_score(self, value):
+        if not (1 <= value <= 10):
+            raise serializers.ValidationError(
+                "Оценка должна быть числом от 1 до 10"
+            )
+        return value
+
     def validate(self, data):
         user = self.context["request"].user
         title_id = self.context["view"].kwargs["title_id"]
