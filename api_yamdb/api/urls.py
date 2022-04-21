@@ -5,11 +5,15 @@ from .views import (
     CategoryViewSet,
     CommentViewSet,
     GenreViewSet,
+    ListUsersViewSet,
+    MyTokenObtainPairView,
+    NewUserViewSet,
     ReviewViewSet,
     TitleViewSet,
     NewUserViewSet,
     TokenObtainView,
     ListUsersViewSet,
+    UserMeAPIView,
 )
 
 app_name = "api"
@@ -24,6 +28,7 @@ router.register(
 router.register(
     r"titles/(?P<title_id>\d+)/reviews/(?P<review_id>\d+)/comments",
     CommentViewSet,
+    basename="comments",
 )
 router.register("auth/signup", NewUserViewSet)
 router.register("users", ListUsersViewSet)
