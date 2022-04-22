@@ -44,7 +44,9 @@ class TokenObtainView(views.APIView):
         serializer.is_valid(raise_exception=True)
 
         try:
-            user = User.objects.get(username=serializer.data["username"])
+            user = User.objects.get(
+                username=serializer.validated_data["username"]
+            )
         except User.DoesNotExist:
             return Response(status=status.HTTP_404_NOT_FOUND)
 
@@ -74,11 +76,11 @@ class NewUserViewSet(CreateModelMixin, viewsets.GenericViewSet):
             "Here is the confirmation code: "
             + str(
                 get_object_or_404(
-                    User, username=serializer.data["username"]
+                    User, username=serializer.validated_data["username"]
                 ).token
             ),
             settings.EMAIL_ADDRESS,
-            [serializer.data["email"]],
+            [serializer.validated_data["email"]],
             fail_silently=False,
         )
         return Response(

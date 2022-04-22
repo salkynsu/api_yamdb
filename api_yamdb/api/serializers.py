@@ -2,6 +2,7 @@ import datetime
 
 from django.shortcuts import get_object_or_404
 from rest_framework import relations, serializers
+
 from reviews.models import Category, Comment, Genre, Review, Title, User
 
 
@@ -28,8 +29,6 @@ class TokenObtainSerializer(serializers.ModelSerializer):
 
 
 class NewUserSerializer(serializers.ModelSerializer):
-    """Сериализатор регистрации нового пользователя."""
-
     class Meta:
         model = User
         fields = ("username", "email")
