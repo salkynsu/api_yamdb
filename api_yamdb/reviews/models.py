@@ -1,10 +1,10 @@
 import binascii
-import datetime
 import os
 
 from django.contrib.auth.models import AbstractUser
 from django.db import models
-from django.core.exceptions import ValidationError
+
+from .validators import year_validator, score_validator
 
 USER = "user"
 MODERATOR = "moderator"
@@ -70,10 +70,6 @@ class Category(models.Model):
 
 
 class Title(models.Model):
-    def year_validator(value):
-        if value > datetime.datetime.now().year:
-            raise ValidationError("Год должен быть не больше текущего.")
-
     name = models.CharField(
         max_length=200, db_index=True, verbose_name="Название"
     )
@@ -95,11 +91,6 @@ class Title(models.Model):
 
 
 class Review(models.Model):
-    def score_validator(value):
-        if not (1 <= value <= 10):
-            raise ValidationError("Оценка должна быть числом от 1 до 10.")
-        return value
-
     title = models.ForeignKey(
         Title,
         on_delete=models.CASCADE,

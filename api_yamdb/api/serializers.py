@@ -1,6 +1,5 @@
-import datetime
-
 from django.shortcuts import get_object_or_404
+from django.utils.timezone import now
 from rest_framework import relations, serializers
 
 from reviews.models import Category, Comment, Genre, Review, Title, User
@@ -89,7 +88,7 @@ class TitlePostSerializer(serializers.ModelSerializer):
         )
 
     def validate_year(self, value):
-        if value > datetime.datetime.now().year:
+        if value > now().year:
             raise serializers.ValidationError(
                 "Год должен быть не больше текущего."
             )

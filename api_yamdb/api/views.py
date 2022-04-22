@@ -151,15 +151,12 @@ class TitleViewSet(viewsets.ModelViewSet):
     permission_classes = [
         AdminOrReadOnly,
     ]
-    queryset = Title.objects.all()
+    queryset = Title.objects.annotate(rating=Avg("reviews__score")).order_by(
+        "-id"
+    )
     serializer_class = TitleSerializer
     filter_backends = (DjangoFilterBackend,)
     filterset_class = TitleFilter
-
-    def get_queryset(self):
-        return Title.objects.annotate(rating=Avg("reviews__score")).order_by(
-            "-id"
-        )
 
     def get_serializer_class(self):
         if self.action in ["list", "retrieve"]:
