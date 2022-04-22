@@ -23,7 +23,7 @@ class User(AbstractUser):
     )
     bio = models.TextField(blank=True, verbose_name="О себе")
     role = models.CharField(
-        choices=ROLE_CHOICE, default="user", max_length=50, verbose_name="Роль"
+        choices=ROLE_CHOICE, default=USER, max_length=50, verbose_name="Роль"
     )
     token = models.CharField(max_length=40, verbose_name="Токен")
 
