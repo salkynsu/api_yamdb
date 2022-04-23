@@ -40,6 +40,18 @@ class User(AbstractUser):
     def generate_key(cls):
         return binascii.hexlify(os.urandom(20)).decode()
 
+    @property
+    def is_user(self):
+        return self.role == USER
+
+    @property
+    def is_moderator(self):
+        return self.role == MODERATOR
+
+    @property
+    def is_admin(self):
+        return self.role == ADMIN
+
 
 class Genre(models.Model):
     name = models.CharField(
