@@ -89,6 +89,9 @@ class Title(models.Model):
         verbose_name = "Произведение"
         verbose_name_plural = "Произведения"
 
+    def __str__(self):
+        return self.name
+
 
 class Review(models.Model):
     title = models.ForeignKey(
@@ -121,7 +124,7 @@ class Review(models.Model):
         ]
 
     def __str__(self):
-        return self.name
+        return self.title.name
 
 
 class Comment(models.Model):
